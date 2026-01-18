@@ -50,37 +50,33 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Função para solicitar a localização do dispositivo
-let markerUsuario = null; // Variável global para controlar o marcador
+let markerUsuario = null;
 
 function pedirLocalizacao() {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                
-                // Centraliza o mapa
                 map.setView([latitude, longitude], 15);
-                
-                // Define o ícone personalizado (bola azul)
-                const userIcon = L.divIcon({
-                    className: 'user-location-marker',
-                    iconSize: [18, 18],
-                    iconAnchor: [9, 9]
+
+                // Criando o ícone do bonequinho (User Pin)
+                const bonecoIcon = L.divIcon({
+                    html: '<div class="user-div-icon"><i class="fa-solid fa-person-rays"></i></div>',
+                    className: 'custom-div-icon',
+                    iconSize: [30, 42],
+                    iconAnchor: [15, 42]
                 });
 
-                // Se o marcador já existir, apenas move ele. Se não, cria um novo.
                 if (markerUsuario) {
                     markerUsuario.setLatLng([latitude, longitude]);
                 } else {
-                    markerUsuario = L.marker([latitude, longitude], { icon: userIcon }).addTo(map);
+                    markerUsuario = L.marker([latitude, longitude], { icon: bonecoIcon }).addTo(map);
                     markerUsuario.bindPopup("<b>Você está aqui</b>").openPopup();
                 }
-                
-                console.log("Localização obtida");
             },
             (error) => {
-                console.error("Erro ao obter localização:", error);
-                // Opcional: Centralizar de volta em SLP se der erro
+                console.error("Erro:", error);
+                // Caso o usuário negue, centralizamos no centro de SLP por segurança
                 map.setView([-23.2217, -45.3111], 15);
             },
             { enableHighAccuracy: true }
