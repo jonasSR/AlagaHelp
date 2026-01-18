@@ -49,22 +49,29 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// Função para solicitar a localização do dispositivo
-let markerUsuario = null; // Variável global para controlar o marcador
+let watchId = null; // Variável para controlar o monitoramento ativo
 
 function pedirLocalizacao() {
     if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
+        // Opções para forçar o GPS e precisão máxima
+        const geoOptions = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0 // Força o navegador a não usar cache da localização antiga
+        };
+
+        // watchPosition garante que o navegador fique "vigiando" a localização
+        watchId = navigator.geolocation.watchPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
 
-                // --- EFEITO GOOGLE MAPS: Desliza suavemente até a posição ---
+                // Efeito FlyTo (Deslizar) igual ao Maps
                 map.flyTo([latitude, longitude], 17, {
                     animate: true,
-                    duration: 2.0 // Duração do movimento em segundos
+                    duration: 1.5
                 });
 
-                // Criando o ícone do Bonequinho (usando FontAwesome)
+                // Ícone do Bonequinho (FontAwesome)
                 const bonecoIcon = L.divIcon({
                     html: '<div class="user-div-icon"><i class="fa-solid fa-person-walking"></i></div>',
                     className: 'custom-div-icon',
@@ -72,13 +79,12 @@ function pedirLocalizacao() {
                     iconAnchor: [15, 42]
                 });
 
-                // Adiciona ou move o marcador
                 if (markerUsuario) {
                     markerUsuario.setLatLng([latitude, longitude]);
                 } else {
                     markerUsuario = L.marker([latitude, longitude], { icon: bonecoIcon }).addTo(map);
                     
-                    // Abre o popup apenas depois que o "vôo" terminar
+                    // Abre o balão quando terminar de deslizar
                     map.once('moveend', () => {
                         markerUsuario.bindPopup("<b>Você está aqui</b>").openPopup();
                     });
@@ -86,10 +92,14 @@ function pedirLocalizacao() {
             },
             (error) => {
                 console.error("Erro ao obter localização:", error);
-                map.flyTo([-23.2217, -45.3111], 15); // Volta para o centro de SLP se falhar
+                if (error.code === 1) {
+                    alert("Por favor, ative a localização no seu navegador para usar o mapa.");
+                }
             },
-            { enableHighAccuracy: true }
+            geoOptions
         );
+    } else {
+        alert("Seu dispositivo não suporta localização.");
     }
 }
 
