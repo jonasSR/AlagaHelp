@@ -24,7 +24,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let usuarioLogado = null;
 
-// 3. Monitorar Sessão e Botão Sair
+// 3. Monitorar Sessão e Pedir Localização
 onAuthStateChanged(auth, (user) => {
     const userEmailSpan = document.getElementById('user-email');
     const btnLogout = document.getElementById('logout');
@@ -33,18 +33,48 @@ onAuthStateChanged(auth, (user) => {
         usuarioLogado = user;
         if (userEmailSpan) userEmailSpan.innerText = `👤 ${user.email}`;
         
+        // --- NOVO: Pedir localização assim que logar ---
+        pedirLocalizacao();
+        // -----------------------------------------------
+
         if (btnLogout) {
             btnLogout.onclick = async () => {
                 await signOut(auth);
                 window.location.href = "login.html";
             };
         }
-        // Só carrega os dados da API se o usuário estiver logado
         atualizarMonitoramento();
     } else {
         window.location.href = "login.html";
     }
 });
+
+// Função para solicitar a localização do dispositivo
+function pedirLocalizacao() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                // Centraliza o mapa na posição do usuário
+                map.setView([latitude, longitude], 15);
+                
+                // Opcional: Adiciona um marcador azul para o usuário
+                L.marker([latitude, longitude]).addTo(map)
+                    .bindPopup("Você está aqui")
+                    .openPopup();
+                
+                console.log("Localização obtida com sucesso");
+            },
+            (error) => {
+                console.error("Erro ao obter localização:", error);
+                alert("Para melhor funcionamento, permita o acesso à localização.");
+            },
+            { enableHighAccuracy: true } // Solicita maior precisão (GPS)
+        );
+    } else {
+        alert("Seu navegador não suporta geolocalização.");
+    }
+}
 
 async function atualizarMonitoramento() {
     try {
