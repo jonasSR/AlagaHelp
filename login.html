@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Alaga-Help</title>
+    <link rel="stylesheet" href="login.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main class="login-container">
+        <section class="login-card">
+            <header>
+                <div class="logo-icon">🌊</div>
+                <h1>Alaga-Help</h1>
+                <p>Monitore São Luiz do Paraitinga em tempo real</p>
+            </header>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="E-mail" required>
+                    <input type="password" id="password" placeholder="Senha" required>
+                </div>
+                
+                <div class="button-group">
+                    <button type="submit" id="btnLogin" class="btn primary">Entrar</button>
+                    <button type="button" id="btnCadastro" class="btn secondary">Criar Conta</button>
+                </div>
+                <p id="error-msg" class="error-text"></p>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="login.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+:root {
+    --primary: #003366;
+    --danger: #e63946;
+    --success: #2a9d8f;
+    --text-light: #f8f9fa;
+    --glass: rgba(255, 255, 255, 0.9);
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden; /* Impede scroll na página inteira */
+}
+
+/* Header Compacto e Elegante */
+#main-header {
+    background: var(--primary);
+    color: white;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    position: relative;
+    z-index: 1100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand h1 {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.brand span {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    display: block;
+}
+
+/* Botão Sair Estilizado */
+.btn-logout {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
+/* Container do Mapa */
+#app-container {
+    height: calc(100vh - 60px);
+    position: relative;
+    display: flex;
+}
+
+#map {
+    flex: 1;
+    z-index: 1;
+}
+
+/* Painel Flutuante (Dashboard) */
+.floating-panel {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    padding: 1.2rem;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    width: 220px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.floating-panel h3 {
+    margin: 0 0 10px 0;
+    font-size: 0.9rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--success);
+    color: white;
+    margin-bottom: 8px;
+}
+
+.status-badge.alert { background: #f39c12; }
+
+/* Ajustes Mobile */
+@media (max-width: 768px) {
+    #main-header {
+        padding: 0 1rem;
+    }
+    
+    .brand-text span {
+        display: none; /* Esconde texto secundário no mobile para ganhar espaço */
+    }
+
+    .floating-panel {
+        top: auto;
+        bottom: 30px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+    }
+    
+    .floating-panel h3, .floating-panel p {
+        margin: 0;
+    }
+}
+
+.weather-data {
+    margin: 15px 0;
+    text-align: left;
+}
+
+.weather-data p {
+    font-size: 0.9rem;
+    color: #444;
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.alerta-box {
+    background: #f8f9fa;
+    border-left: 4px solid #415a77;
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1b263b;
+    margin-top: 10px;
+}
+
+/* Quando estiver em perigo, o alerta muda de cor */
+.status-badge.danger + .alerta-box {
+    border-left-color: #e63946;
+    background: #fff1f2;
+}
+
+.termometro {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #d62828; /* Cor destaque para temperatura */
+    margin-top: 5px;
+}
+
+.min-max {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.info-agora .valor {
+    font-size: 1.2rem; /* Reduzi um pouco para caber a temperatura ao lado */
+    color: #0077b6;
+    margin-top: 5px;
+}
+
+

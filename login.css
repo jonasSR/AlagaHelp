@@ -1,0 +1,129 @@
+:root {
+    --primary-color: #415a77;
+    --primary-hover: #1b263b;
+    --bg-dark: #0d1b2a;
+    --text-main: #1b263b;
+    --text-muted: #778da9;
+    --white: #ffffff;
+    --error: #e63946;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-dark);
+    /* Background com gradiente para profundidade */
+    background: radial-gradient(circle at top right, #1b263b, #0d1b2a);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease;
+}
+
+/* Efeito de flutuação suave no desktop */
+@media (min-width: 768px) {
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+}
+
+.logo-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+h1 {
+    color: var(--text-main);
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 2px solid #e0e1dd;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    outline: none;
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.btn.primary:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn.secondary {
+    background-color: #f1f3f5;
+    color: var(--text-main);
+}
+
+.btn.secondary:hover {
+    background-color: #e0e1dd;
+}
+
+.error-text {
+    color: var(--error);
+    font-size: 0.85rem;
+    margin-top: 15px;
+    min-height: 1.2rem;
+}
+
+/* Ajustes para telas bem pequenas (celulares antigos) */
+@media (max-width: 350px) {
+    .login-card {
+        padding: 1.5rem;
+    }
+}

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alaga-Help SLP | Monitoramento</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header id="main-header">
+        <div class="header-content">
+            <div class="brand">
+                <span class="logo-emoji">🌊</span>
+                <div class="brand-text">
+                    <h1>Alaga-Help</h1>
+                    <span>São Luiz do Paraitinga</span>
+                </div>
+            </div>
+            <nav class="user-menu">
+                <span id="user-email" class="user-info"></span>
+                <button id="logout" class="btn-logout">Sair</button>
+            </nav>
+        </div>
+    </header>
+
+    <main id="app-container">
+        <div id="map"></div>
+        
+        <aside id="status-panel" class="floating-panel">
+            <h3>Status do Rio</h3>
+            <div class="status-badge alert">Nível Elevado</div>
+            <p>Última atualização: <strong>14:30</strong></p>
+        </aside>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
