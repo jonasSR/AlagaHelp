@@ -34,17 +34,27 @@ const traduzirErro = (code) => {
 };
 
 // LOGIN
-document.getElementById('btnLogin').onclick = async () => {
+document.getElementById('btnLogin').onclick = async (e) => {
+    e.preventDefault(); // IMPORTANTE: impede o reload da página
+    
+    msg.innerText = "Verificando..."; // Feedback visual
+
     if (!emailIn.value || !passIn.value) {
         msg.innerText = "Preencha todos os campos.";
         return;
     }
 
     try {
-        await signInWithEmailAndPassword(auth, emailIn.value, passIn.value);
-        window.location.href = "index.html";
+        // Tenta fazer o login
+        const userCredential = await signInWithEmailAndPassword(auth, emailIn.value, passIn.value);
+        
+        if (userCredential.user) {
+            console.log("Login realizado com sucesso!");
+            // Usamos replace para que o usuário não possa voltar para a tela de login pelo botão "voltar"
+            window.location.replace("index.html");
+        }
     } catch (err) {
-        console.error(err);
+        console.error("Erro ao logar:", err.code);
         msg.innerText = traduzirErro(err.code);
     }
 };
