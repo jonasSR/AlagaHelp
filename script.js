@@ -50,29 +50,41 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Função para solicitar a localização do dispositivo
+let markerUsuario = null; // Variável global para controlar o marcador
+
 function pedirLocalizacao() {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                // Centraliza o mapa na posição do usuário
+                
+                // Centraliza o mapa
                 map.setView([latitude, longitude], 15);
                 
-                // Opcional: Adiciona um marcador azul para o usuário
-                L.marker([latitude, longitude]).addTo(map)
-                    .bindPopup("Você está aqui")
-                    .openPopup();
+                // Define o ícone personalizado (bola azul)
+                const userIcon = L.divIcon({
+                    className: 'user-location-marker',
+                    iconSize: [18, 18],
+                    iconAnchor: [9, 9]
+                });
+
+                // Se o marcador já existir, apenas move ele. Se não, cria um novo.
+                if (markerUsuario) {
+                    markerUsuario.setLatLng([latitude, longitude]);
+                } else {
+                    markerUsuario = L.marker([latitude, longitude], { icon: userIcon }).addTo(map);
+                    markerUsuario.bindPopup("<b>Você está aqui</b>").openPopup();
+                }
                 
-                console.log("Localização obtida com sucesso");
+                console.log("Localização obtida");
             },
             (error) => {
                 console.error("Erro ao obter localização:", error);
-                alert("Para melhor funcionamento, permita o acesso à localização.");
+                // Opcional: Centralizar de volta em SLP se der erro
+                map.setView([-23.2217, -45.3111], 15);
             },
-            { enableHighAccuracy: true } // Solicita maior precisão (GPS)
+            { enableHighAccuracy: true }
         );
-    } else {
-        alert("Seu navegador não suporta geolocalização.");
     }
 }
 
