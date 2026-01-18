@@ -217,7 +217,7 @@ body, html {
 }
 
 .user-div-icon i {
-    color: #007bff; /* Azul vibrante */
+    color: #ff0000; /* Azul vibrante */
     font-size: 32px; /* Tamanho bom para mobile */
     text-shadow: 
         -2px -2px 0 #fff,  
