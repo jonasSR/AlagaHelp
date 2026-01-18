@@ -193,6 +193,20 @@ body, html {
     margin-top: 5px;
 }
 
+/* Efeito de pulsação para a localização do usuário */
+.user-location-marker {
+    background-color: #2196F3;
+    border: 3-px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(33, 150, 243, 0.4);
+    animation: pulse-user 2s infinite;
+}
+
+@keyframes pulse-user {
+    0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(33, 150, 243, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
+}
 
 /* Estilo do Bonequinho de Localização */
 .user-div-icon i {
