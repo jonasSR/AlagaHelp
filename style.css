@@ -204,25 +204,8 @@ body, html {
 }
 
 @keyframes pulse-user {
-    0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7); }
+    0% { box-shadow: 0 0 0 0 rgba(253, 0, 0, 0.7); }
     70% { box-shadow: 0 0 0 15px rgba(33, 150, 243, 0); }
     100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
 }
 
-/* Estilo do Bonequinho com Borda Branca para destaque */
-.user-div-icon i {
-    color: #007bff;
-    font-size: 32px;
-    text-shadow: 
-        -2px -2px 0 #fff,  
-         2px -2px 0 #fff,
-        -2px  2px 0 #fff,
-         2px  2px 0 #fff;
-    filter: drop-shadow(0 4px 5px rgba(0,0,0,0.4));
-    animation: bounce 2s infinite ease-in-out;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
