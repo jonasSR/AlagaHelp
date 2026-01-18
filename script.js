@@ -87,10 +87,6 @@ function pedirLocalizacao() {
                 } else {
                     markerUsuario = L.marker([latitude, longitude], { icon: bonecoIcon }).addTo(map);
                     
-                    // Abre o balão quando terminar de deslizar
-                    map.once('moveend', () => {
-                        markerUsuario.bindPopup("<b>Você está aqui</b>").openPopup();
-                    });
                 }
             },
             (error) => {
