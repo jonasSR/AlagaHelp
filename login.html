@@ -18,8 +18,9 @@
             
             <form id="login-form">
                 <div class="input-group">
-                    <input type="email" id="email" placeholder="E-mail" required>
-                    <input type="password" id="password" placeholder="Senha" required>
+                    <input type="email" id="email" placeholder="E-mail" autocomplete="email" required>
+                    
+                    <input type="password" id="password" placeholder="Senha" autocomplete="current-password" required>
                 </div>
                 
                 <div class="button-group">
@@ -32,5 +33,6 @@
     </main>
 
     <script type="module" src="login.js"></script>
+    
 </body>
 </html>
