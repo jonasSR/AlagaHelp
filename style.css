@@ -193,30 +193,27 @@ body, html {
     margin-top: 5px;
 }
 
-/* Efeito de pulsação para a localização do usuário */
-.user-location-marker {
-    background-color: #2196F3;
-    border: 3-px solid white;
-    border-radius: 50%;
-    box-shadow: 0 0 0 rgba(33, 150, 243, 0.4);
-    animation: pulse-user 2s infinite;
+/* Estilo para o Bonequinho de Localização */
+.user-div-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-@keyframes pulse-user {
-    0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(33, 150, 243, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
-}
-
-/* Estilo do Bonequinho de Localização */
 .user-div-icon i {
-    color: #007bff; /* Azul Google */
-    font-size: 30px;
-    text-shadow: 0 0 5px white, 2px 2px 10px rgba(0,0,0,0.3);
-    animation: bounce 2s infinite; /* Faz o bonequinho pular levemente */
+    color: #007bff; /* Azul vibrante */
+    font-size: 32px; /* Tamanho bom para mobile */
+    text-shadow: 
+        -2px -2px 0 #fff,  
+         2px -2px 0 #fff,
+        -2px  2px 0 #fff,
+         2px  2px 0 #fff; /* Borda branca para destacar em qualquer cor de mapa */
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
+    animation: bounce 2s infinite ease-in-out;
 }
 
+/* Animação de pulo suave */
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+    50% { transform: translateY(-8px); }
 }
