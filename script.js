@@ -49,6 +49,9 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
+// Função para solicitar a localização do dispositivo
+let markerUsuario = null; // Variável global para controlar o marcador
+
 let watchId = null; // Variável para controlar o monitoramento ativo
 
 function pedirLocalizacao() {

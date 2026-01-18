@@ -204,8 +204,32 @@ body, html {
 }
 
 @keyframes pulse-user {
-    0% { box-shadow: 0 0 0 0 rgba(253, 0, 0, 0.7); }
+    0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.7); }
     70% { box-shadow: 0 0 0 15px rgba(33, 150, 243, 0); }
     100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
 }
 
+/* Estilo para o Bonequinho de Localização */
+.user-div-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-div-icon i {
+    color: #007bff; /* Azul vibrante */
+    font-size: 32px; /* Tamanho bom para mobile */
+    text-shadow: 
+        -2px -2px 0 #fff,  
+         2px -2px 0 #fff,
+        -2px  2px 0 #fff,
+         2px  2px 0 #fff; /* Borda branca para destacar em qualquer cor de mapa */
+    filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3));
+    animation: bounce 2s infinite ease-in-out;
+}
+
+/* Animação de pulo suave */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
