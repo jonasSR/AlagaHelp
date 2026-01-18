@@ -50,34 +50,43 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Função para solicitar a localização do dispositivo
-let markerUsuario = null;
+let markerUsuario = null; // Variável global para controlar o marcador
 
 function pedirLocalizacao() {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
-                map.setView([latitude, longitude], 15);
 
-                // Criando o ícone do bonequinho (User Pin)
+                // --- EFEITO GOOGLE MAPS: Desliza suavemente até a posição ---
+                map.flyTo([latitude, longitude], 17, {
+                    animate: true,
+                    duration: 2.0 // Duração do movimento em segundos
+                });
+
+                // Criando o ícone do Bonequinho (usando FontAwesome)
                 const bonecoIcon = L.divIcon({
-                    html: '<div class="user-div-icon"><i class="fa-solid fa-person-rays"></i></div>',
+                    html: '<div class="user-div-icon"><i class="fa-solid fa-person-walking"></i></div>',
                     className: 'custom-div-icon',
                     iconSize: [30, 42],
                     iconAnchor: [15, 42]
                 });
 
+                // Adiciona ou move o marcador
                 if (markerUsuario) {
                     markerUsuario.setLatLng([latitude, longitude]);
                 } else {
                     markerUsuario = L.marker([latitude, longitude], { icon: bonecoIcon }).addTo(map);
-                    markerUsuario.bindPopup("<b>Você está aqui</b>").openPopup();
+                    
+                    // Abre o popup apenas depois que o "vôo" terminar
+                    map.once('moveend', () => {
+                        markerUsuario.bindPopup("<b>Você está aqui</b>").openPopup();
+                    });
                 }
             },
             (error) => {
-                console.error("Erro:", error);
-                // Caso o usuário negue, centralizamos no centro de SLP por segurança
-                map.setView([-23.2217, -45.3111], 15);
+                console.error("Erro ao obter localização:", error);
+                map.flyTo([-23.2217, -45.3111], 15); // Volta para o centro de SLP se falhar
             },
             { enableHighAccuracy: true }
         );
