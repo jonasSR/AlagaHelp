@@ -91,6 +91,10 @@ onAuthStateChanged(auth, (user) => {
         carregarPontosAlagamento();
         tentarAtivarGPSAoEntrar();
 
+    // ADICIONE ESTA LINHA:
+        if (window.innerWidth > 768) {
+            carregarPrevisao3Dias();
+        }
     } else {
         window.location.href = "login.html";
     }
@@ -242,21 +246,17 @@ function carregarPontosAlagamento() {
                         }
                     }
                 });
-
-                if (!isMobile) {
-                    marcador.on('mouseout', function () { this.closePopup(); });
-                }
             }
         });
     });
 }
 
-// 7. Monitoramento Climático
 async function atualizarMonitoramento() {
     try {
         const url = "https://api.open-meteo.com/v1/forecast?latitude=-23.2217&longitude=-45.31&daily=sunrise,sunset,daylight_duration,temperature_2m_max,temperature_2m_min,wind_speed_10m_max&hourly=temperature_2m,rain,precipitation_probability,cloud_cover,is_day,showers,apparent_temperature&models=best_match&current=temperature_2m,is_day,rain,precipitation,showers,cloud_cover&timezone=America%2FSao_Paulo&forecast_days=1";
         const response = await fetch(url);
         const data = await response.json();
+        
         const atual = data.current;
         const diario = data.daily;
         const horario = data.hourly;
@@ -264,30 +264,41 @@ async function atualizarMonitoramento() {
         const vol = atual.precipitation; 
         
         let statusTexto = "SEM CHUVA";
-        let statusClasse = "safe"; // Cor para tempo limpo
+        let statusClasse = "safe"; // Verde
 
+        // Lógica de cores baseada na intensidade
         if (vol > 0) {
-            statusClasse = "danger"; // Cor para alerta de chuva
-            if (vol < 1.0) statusTexto = "GAROA FRACA";
-            else if (vol < 5.0) statusTexto = "CHUVA MODERADA";
-            else statusTexto = "CHUVA FORTE";
+            if (vol >= 5.0) {
+                statusTexto = "CHUVA FORTE";
+                statusClasse = "danger"; // Vermelho
+            } else {
+                // Para Garoa ou Chuva Moderada
+                statusTexto = vol < 1.0 ? "GAROA FRACA" : "CHUVA MODERADA";
+                statusClasse = "warning"; // Amarelo/Laranja
+            }
         }
 
         const painel = document.getElementById('status-panel');
         if (painel) {
-            // ADICIONADO: statusClasse na primeira div para mudar a borda
             painel.innerHTML = `
-                <div class="monitor-card compact ${statusClasse}" id="main-monitor" onclick="toggleMonitor()">
+                <div class="monitor-card compact ${statusClasse}" id="main-monitor">
                     <div class="drag-handle"></div>
-                    <div class="header-resumo">
+                    
+                    <div class="header-resumo" onclick="toggleMonitor()">
                         <div class="info-principal">
                             <span class="cidade">S.L. Paraitinga</span>
                             <h1>${atual.temperature_2m}°</h1>
+                            <div class="alerta-mini ${statusClasse}">${statusTexto}</div>
                         </div>
-                        <div class="alerta-mini ${statusClasse}">
-                            ${statusTexto}
+
+                        <div class="mobile-selector-container">
+                            <div class="mobile-switch">
+                                <button class="btn-switch ativo" id="sw-hoje" onclick="event.stopPropagation(); fecharModalPrevisao(); window.setSwitch('hoje')">Hoje</button>
+                                <button class="btn-switch" id="sw-3dias" onclick="event.stopPropagation(); abrirModalPrevisao(); window.setSwitch('3dias')">3 Dias</button>
+                            </div>
                         </div>
                     </div>
+
                     <div class="detalhes-expansíveis">
                         <div class="data-grid">
                             <div class="data-item"><span class="label">SENSAÇÃO</span><span class="value">${horario.apparent_temperature[horaIndex]}°C</span></div>
@@ -297,7 +308,6 @@ async function atualizarMonitoramento() {
                         </div>
                         <div class="footer-info">
                             <div class="sun-cycle"><span>🌅 ${diario.sunrise[0].split('T')[1]}</span><span>🌇 ${diario.sunset[0].split('T')[1]}</span></div>
-                            <small>Clique para recolher</small>
                         </div>
                     </div>
                 </div>
@@ -305,7 +315,96 @@ async function atualizarMonitoramento() {
         }
     } catch (e) { console.error("Erro clima:", e); }
 }
+// Função global para trocar o estado do botão
+window.setSwitch = function(tipo) {
+    const btnHoje = document.getElementById('sw-hoje');
+    const btn3dias = document.getElementById('sw-3dias');
+    if (!btnHoje || !btn3dias) return;
 
+    if (tipo === 'hoje') {
+        btnHoje.classList.add('ativo');
+        btn3dias.classList.remove('ativo');
+    } else {
+        btn3dias.classList.add('ativo');
+        btnHoje.classList.remove('ativo');
+    }
+};
+
+window.abrirModalAjuda = function() {
+    document.getElementById('modal-ajuda').style.display = 'flex';
+}
+
+window.fecharModalAjuda = function() {
+    document.getElementById('modal-ajuda').style.display = 'none';
+}
+
+
+// Lógica do Switch Mobile
+const btnHoje = document.getElementById('btn-ver-hoje');
+const btn3Dias = document.getElementById('btn-ver-3dias');
+
+if (btnHoje && btn3Dias) {
+    btnHoje.onclick = () => {
+        btnHoje.classList.add('ativo');
+        btn3Dias.classList.remove('ativo');
+        fecharModalPrevisao(); // Volta para a visão do mapa/hoje
+    };
+
+    btn3Dias.onclick = () => {
+        btn3Dias.classList.add('ativo');
+        btnHoje.classList.remove('ativo');
+        abrirModalPrevisao(); // Abre a previsão extendida
+    };
+}
+
+// Centraliza a função de fechar para garantir que o switch sempre mude
+window.fecharModalPrevisao = function() {
+    const modal = document.getElementById('modal-previsao');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    // AÇÃO AUTOMÁTICA: Volta o botão para "Hoje"
+    window.setSwitch('hoje');
+};
+
+window.abrirModalPrevisao = function() {
+    const modal = document.getElementById('modal-previsao');
+    if (modal) {
+        modal.style.display = 'block';
+        carregarPrevisao3Dias();
+    }
+};
+
+// Fecha a modal se clicar fora dela (no fundo escuro)
+window.onclick = function(event) {
+    const modal = document.getElementById('modal-previsao');
+    const modalAjuda = document.getElementById('modal-ajuda');
+    
+    if (event.target == modal) {
+        window.fecharModalPrevisao(); // Usa a função acima para resetar o switch
+    }
+    if (event.target == modalAjuda) {
+        window.fecharModalAjuda();
+    }
+};
+
+// Mantenha sua função setSwitch como está, ela já funciona bem
+window.setSwitch = function(tipo) {
+    const btnHoje = document.getElementById('sw-hoje');
+    const btn3dias = document.getElementById('sw-3dias');
+    if (!btnHoje || !btn3dias) return;
+
+    if (tipo === 'hoje') {
+        btnHoje.classList.add('ativo');
+        btn3dias.classList.remove('ativo');
+    } else {
+        btn3dias.classList.add('ativo');
+        btnHoje.classList.remove('ativo');
+    }
+};
+
+//###########################################################################################################
 export async function carregarPrevisao3Dias() {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=-23.2217&longitude=-45.31&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,showers_sum,rain_sum&timezone=America%2FSao_Paulo&forecast_days=4";
     const containerPrevisao = document.querySelector('.dias-grid');
@@ -343,17 +442,6 @@ export async function carregarPrevisao3Dias() {
     } catch (error) { mostrarMensagem("Erro ao carregar previsão.", "error"); }
 }
 
-window.abrirModalPrevisao = function() {
-    document.getElementById('modal-previsao').style.display = 'block';
-    carregarPrevisao3Dias();
-}
-window.fecharModalPrevisao = function() {
-    document.getElementById('modal-previsao').style.display = 'none';
-}
-window.onclick = function(event) {
-    const modal = document.getElementById('modal-previsao');
-    if (event.target == modal) modal.style.display = "none";
-}
 
 function toggleMonitor() {
     const el = document.getElementById('main-monitor');
@@ -363,6 +451,8 @@ function toggleMonitor() {
     }
 }
 window.toggleMonitor = toggleMonitor;
+
+
 
 // --- CORREÇÃO: Usando confirmarAcao na remoção de ponto ---
 window.removerPonto = async function(id) {
@@ -403,12 +493,3 @@ window.addEventListener('click', () => {
 }, { once: true });
 
 atualizarMonitoramento();
-
-
-window.abrirModalAjuda = function() {
-    document.getElementById('modal-ajuda').style.display = 'flex';
-}
-
-window.fecharModalAjuda = function() {
-    document.getElementById('modal-ajuda').style.display = 'none';
-}

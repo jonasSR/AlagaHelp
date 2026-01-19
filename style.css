@@ -1,4 +1,6 @@
-/* 1. VARIÁVEIS E BASE */
+/* ==========================================================================
+   1. VARIÁVEIS E BASE
+   ========================================================================== */
 :root {
     --primary: #003366;
     --danger: #e63946;
@@ -11,15 +13,22 @@
     --shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 
-* { box-sizing: border-box; }
-
-body, html {
-    margin: 0; padding: 0; height: 100%;
-    font-family: 'Inter', sans-serif;
-    overflow: hidden; color: var(--text);
+* { 
+    box-sizing: border-box; 
 }
 
-/* 2. HEADER COMPACTO */
+body, html {
+    margin: 0; 
+    padding: 0; 
+    height: 100%;
+    font-family: 'Inter', sans-serif;
+    overflow: hidden; 
+    color: var(--text);
+}
+
+/* ==========================================================================
+   2. HEADER (DESKTOP BASE)
+   ========================================================================== */
 #main-header {
     background: var(--primary);
     color: white;
@@ -33,41 +42,147 @@ body, html {
 }
 
 .header-content {
-    display: flex; justify-content: space-between;
-    align-items: center; width: 100%;
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; 
+    width: 100%;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
 }
 
 .brand h1 { font-size: 1rem; margin: 0; font-weight: 700; }
 .brand span { font-size: 0.7rem; opacity: 0.8; }
 
-.btn-logout {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: white; padding: 6px 12px;
-    border-radius: 8px; font-size: 0.75rem;
-    cursor: pointer;
+.user-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-grow: 1;
 }
 
-/* 3. LAYOUT APP */
+.user-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-logout {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-help {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+/* ==========================================================================
+   3. ESTRUTURA DO APP E MAPA
+   ========================================================================== */
 #app-container {
     height: calc(100vh - 60px);
-    position: relative; display: flex;
+    position: relative; 
+    display: flex;
 }
 
-#map { flex: 1; z-index: 1; }
+#map { 
+    flex: 1; 
+    z-index: 1; 
+}
 
-/* 4. MONITOR CARD (PAINEL CLIMA) */
+.map-button {
+    position: fixed; 
+    bottom: 500px; 
+    right: 20px;
+    width: 52px; 
+    height: 52px;
+    background: white; 
+    border: none; 
+    border-radius: 14px;
+    z-index: 1000; 
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    transition: all 0.4s ease-in-out;
+}
+
+.map-button i { font-size: 20px; color: #333; }
+.map-button.active { color: #1a73e8; }
+.map-button:hover { background-color: #f8f9fa; }
+
+/* Marcadores de Radar */
+.user-radar-marker .dot {
+    width: 14px; height: 14px; background: var(--danger);
+    border: 2px solid white; border-radius: 50%;
+    position: absolute; z-index: 2;
+}
+
+.user-radar-marker .pulse {
+    width: 14px; height: 14px; background: rgba(230, 57, 70, 0.4);
+    border-radius: 50%; animation: radar-wave 2s infinite;
+}
+
+/* ==========================================================================
+   4. MONITOR CARD (PAINEL CLIMA)
+   ========================================================================== */
 .monitor-card {
-    position: absolute;
-    top: 20px; right: 20px;
-    width: 320px;
-    z-index: 1000;
+    position: fixed;      /* Fixa em relação à janela do navegador */
+    bottom: 20px;         /* 20px de distância do fundo */
+    left: 20px;           /* 20px de distância da esquerda */
+    width: 320px;         /* Largura fixa para não variar entre navegadores */
+    z-index: 2000;        /* Garante que fique acima de tudo, inclusive do mapa */
+    
+    /* Estilização Visual */
     background: var(--glass);
     backdrop-filter: blur(12px);
     padding: 1.25rem;
-    border-radius: 24px;
+    border-radius: 15px;
     box-shadow: var(--shadow);
-    border: 1px solid rgba(255,255,255,0.4);
+    border: 4px solid #ccc;
+    transition: all 0.4s ease-in-out;
+    
+    /* Previne que o card "fuja" da tela em janelas pequenas */
+    right: auto; 
+    top: auto;
+}
+
+/* Garante que o container pai não limite o card */
+#status-panel {
+    position: static;
+}
+
+.monitor-card.safe {
+    border-color: #2ecc71 !important;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+.monitor-card.danger {
+    border-color: #e74c3c !important;
+    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
+    animation: alert-glow 1.5s infinite alternate;
 }
 
 .header-main { display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; margin-bottom: 1rem; }
@@ -76,225 +191,30 @@ body, html {
 .temp-section h1 { font-size: 2.8rem; margin: 0; color: var(--primary); }
 .temp-info p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
 
-/* STATUS DINÂMICO */
 .alerta-status {
     display: flex; align-items: center; gap: 8px;
     padding: 10px 14px; border-radius: 12px;
     font-weight: 800; font-size: 0.8rem; margin: 1rem 0;
 }
+
 .alerta-status.danger { background: #fee2e2; color: var(--danger); animation: pulse-soft 2s infinite; }
 .alerta-status.safe { background: #dcfce7; color: var(--success); }
 
-/* GRID DE DADOS */
 .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .data-item { background: #f8fafc; padding: 10px; border-radius: 14px; border: 1px solid #f1f5f9; }
 .label { display: block; font-size: 0.6rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; }
 .value { font-size: 0.95rem; font-weight: 800; display: block; }
 .sub { font-size: 0.7rem; color: #3b82f6; font-weight: 600; }
 
-/* 5. ELEMENTOS DO MAPA */
-.map-button {
-    position: absolute; bottom: 30px; right: 20px;
-    width: 52px; height: 52px;
-    background: white; border: none; border-radius: 14px;
-    z-index: 1000; cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: flex; align-items: center; justify-content: center;
-}
-
-.map-button i { font-size: 20px; color: #333; }
-
-/* MARCADOR RADAR (Ponto Vermelho) */
-.user-radar-marker .dot {
-    width: 14px; height: 14px; background: var(--danger);
-    border: 2px solid white; border-radius: 50%;
-    position: absolute; z-index: 2;
-}
-.user-radar-marker .pulse {
-    width: 14px; height: 14px; background: rgba(230, 57, 70, 0.4);
-    border-radius: 50%; animation: radar-wave 2s infinite;
-}
-
-
-
-/* 6. RESPONSIVIDADE (MOBILE) */
-/* =========================================================
-   6. RESPONSIVIDADE (MOBILE)
-   ========================================================= */
-@media (max-width: 768px) {
-    #main-header { height: 50px; }
-    #app-container { height: calc(100vh - 50px); }
-
-    /* Card vira uma gaveta no rodapé */
-    .monitor-card {
-        top: auto; 
-        bottom: 0; 
-        right: 0; 
-        left: 0;
-        width: 100%;
-        border-radius: 24px 24px 0 0;
-        padding: 0.8rem 1.25rem 1rem;
-        cursor: pointer;
-        transition: max-height 0.4s ease-in-out;
-    }
-
-    /* Quando clicado (expandido), mostramos o resto */
-    .monitor-card.expanded {
-        max-height: 500px;
-    }
-
-    /* Esconde a grid de dados e sol quando compacto */
-    .monitor-card.compact .data-grid,
-    .monitor-card.compact .footer-info,
-    .monitor-card.compact .temp-info p {
-        display: none;
-    }
-
-    /* Ajuste da Temperatura no modo compacto */
-    .monitor-card.compact .temp-section {
-        margin-bottom: 0;
-    }
-    
-    .monitor-card.compact .temp-section h1 {
-        font-size: 1.8rem;
-    }
-
-    .monitor-card.compact .alerta-status {
-        margin: 0;
-        padding: 5px 10px;
-        font-size: 0.7rem;
-    }
-
-    /* =========================================================
-       BOTÃO DO MAPA — POSICIONADO NA INFERIOR ESQUERDA
-       ========================================================= */
-.map-button { 
-        position: absolute;
-        bottom: 180px;   /* Ajustado para ficar logo acima da gaveta compacta */
-        left: 20px;     /* FIXO NA ESQUERDA */
-        right: auto;    /* ANULA O POSICIONAMENTO DO DESKTOP */
-        
-        width: 48px; 
-        height: 48px; 
-        background: #fff;
-        border-radius: 8px; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        /*z-index: 1100; /* Garante que fique sobre o mapa */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: bottom 0.4s ease-in-out; /* Sobe suave com a gaveta */
-    }
-
-    /* Se a gaveta expandir, o botão sobe junto no canto ESQUERDO */
-    .monitor-card.expanded ~ .map-button {
-        bottom: 515px; 
-    }
-
-    .map-button:hover {
-        background-color: #f8f9fa;
-        color: #333;
-    }
-
-    .map-button.active {
-        color: #1a73e8;
-    }
-
-    /* Sobe o botão apenas no eixo Y quando a gaveta expande */
-    .monitor-card.expanded ~ .map-button {
-        bottom: 520px; 
-    }
-
-    /* Handle visual */
-    .drag-handle {
-        display: block;
-        width: 40px;
-        height: 4px;
-        background: #ccc;
-        margin: 0 auto 8px;
-        border-radius: 2px;
-    }
-}
-
-/* No Desktop a handle some */
-@media (min-width: 769px) {
-    .drag-handle { display: none; }
-}
-
-
-/* AJUSTE ESPECÍFICO PARA O HEADER NO MOBILE */
-@media (max-width: 768px) {
-    #main-header {
-        height: 54px; /* Altura reduzida para priorizar o mapa */
-        padding: 0 12px;
-    }
-
-    .header-content {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* Ajuste da Logo/Título */
-    .brand {
-        gap: 8px; /* Diminui o espaço entre emoji e texto */
-    }
-
-    .logo-emoji {
-        font-size: 1.2rem;
-    }
-
-    .brand-text h1 {
-        font-size: 0.95rem; /* Título menor */
-        line-height: 1.1;
-    }
-
-    .brand-text span {
-        font-size: 0.65rem; /* Subtítulo bem pequeno */
-        opacity: 0.9;
-    }
-
-    /* Menu do Usuário */
-    .user-info {
-        display: none; /* Esconde o e-mail no mobile para não amontoar */
-    }
-
-    .btn-logout {
-        padding: 5px 12px;
-        font-size: 0.75rem;
-        border-radius: 6px;
-    }
-}
-
-
-
-/* Botão Flutuante - Mantido conforme seu original */
-.floating-btn {
-    position: fixed;
-    bottom: 100px;
-    right: 20px;
-    background: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* Modal de Previsão - Ajustado para não crescer para baixo */
+/* ==========================================================================
+   5. MODAIS E COMPONENTES FLUTUANTES
+   ========================================================================== */
 .modal-clima {
     display: none;
     position: fixed;
     z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
     background-color: rgba(0,0,0,0.5);
 }
 
@@ -303,11 +223,35 @@ body, html {
     margin: 15% auto;
     padding: 20px;
     width: 90%;
-    max-width: 450px; /* Aumentado levemente para caber 3 colunas */
+    max-width: 450px;
     border-radius: 20px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
 }
 
-/* NOVIDADE: Força os dias a ficarem lado a lado */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header button {
+    background: none; border: none;
+    font-size: 20px; color: #999;
+}
+
+.modal-body-scroll {
+    overflow-y: auto;
+    padding: 10px 15px;
+    scrollbar-width: thin;
+}
+
+.modal-body-scroll::-webkit-scrollbar { width: 5px; }
+.modal-body-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+
+/* Grid de Previsão */
 .dias-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
@@ -326,29 +270,52 @@ body, html {
     align-items: center;
 }
 
-.modal-header {
+/* Ajuda Itens */
+.ajuda-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
-.modal-header button {
-    background: none;
+.ajuda-item i {
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+    margin-top: 3px;
+}
+
+.ajuda-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.4;
+}
+
+/* Botões Flutuantes */
+.floating-btn {
+    position: fixed;
+    bottom: 120px; right: 20px;
+    background: white;
     border: none;
-    font-size: 20px;
-    color: #999;
+    padding: 10px 15px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .floating-btn-add {
     position: absolute;
-    bottom: auto; /* Altura para não bater no card mobile */
     right: 20px;
     top: 10px;
-    width: 50px;
-    height: 50px;
+    width: 50px; height: 50px;
     border-radius: 50%;
-    background: #e74c3c; /* Vermelho alerta */
+    background: #e74c3c;
     color: white;
     border: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -361,37 +328,21 @@ body, html {
     transition: transform 0.2s;
 }
 
-.floating-btn-add:active {
-    transform: scale(0.9);
-}
-
+.floating-btn-add:active { transform: scale(0.9); }
 .floating-btn-add i { font-size: 1.2rem; }
 .floating-btn-add span { font-size: 1.5rem; font-weight: bold; }
 
-/* Estilo para quando o modo de marcação estiver ativo */
 .modo-marcar-ativo {
     background: #2c3e50 !important;
     animation: pulse-red 1.5s infinite;
 }
 
-@keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-    70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
-}
-
-
-
-
-
-
-
-
-
+/* ==========================================================================
+   6. SISTEMA DE TOASTS
+   ========================================================================== */
 #toast-container {
     position: fixed;
-    top: 20px;
-    left: 50%;
+    top: 20px; left: 50%;
     transform: translateX(-50%);
     z-index: 9999;
     display: flex;
@@ -405,7 +356,6 @@ body, html {
     color: white;
     padding: 12px 24px;
     border-radius: 8px;
-    font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
@@ -416,6 +366,30 @@ body, html {
 .toast.error { border-left-color: #e74c3c; }
 .toast.info { border-left-color: #3498db; }
 
+.confirm-toast { padding: 15px !important; min-width: 200px; }
+.confirmacao-fixa {
+    animation: none !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+    min-width: 250px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.toast button {
+    transition: opacity 0.2s;
+    font-family: 'Inter', sans-serif;
+    background: transparent; /* fallback */
+}
+.toast button:active { opacity: 0.7; transform: scale(0.95); }
+
+/* ==========================================================================
+   7. ANIMAÇÕES
+   ========================================================================== */
+@keyframes radar-wave {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(4); opacity: 0; }
+}
+
 @keyframes slideIn {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -425,190 +399,318 @@ body, html {
     to { opacity: 0; transform: translateY(-10px); }
 }
 
-
-/* Garante que o toast de confirmação não suma sozinho rápido demais */
-.confirm-toast {
-    padding: 15px !important;
-    min-width: 200px;
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
 }
 
-.confirm-toast button:active {
-    transform: scale(0.95);
-}
-
-.toast button {
-    transition: opacity 0.2s;
-    font-family: 'Inter', sans-serif;
-}
-
-.toast button:active {
-    opacity: 0.7;
-    transform: scale(0.95);
-}
-
-/* Garante que o container de confirmação seja interativo e visível */
-.confirmacao-fixa {
-    animation: none !important; /* Remove animações que poderiam esconder o toast */
-    opacity: 1 !important;
-    pointer-events: all !important;
-    min-width: 250px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
-
-/* Estilo base do card com borda mais grossa */
-.monitor-card {
-    border: 4px solid #ccc; /* Borda padrão grossa */
-    transition: all 0.4s ease-in-out;
-    background: #ffffff;
-    border-radius: 15px;
-    overflow: hidden;
-}
-
-/* Borda Verde - Sem Chuva */
-.monitor-card.safe {
-    border-color: #2ecc71 !important;
-    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-}
-
-/* Borda Vermelha - Com Chuva */
-.monitor-card.danger {
-    border-color: #e74c3c !important;
-    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
-    /* Opcional: Efeito pulsar para chamar ainda mais atenção */
-    animation: alert-glow 1.5s infinite alternate;
-}
-
-/* Animação para o estado de perigo */
 @keyframes alert-glow {
     from { box-shadow: 0 0 5px #e74c3c; }
     to { box-shadow: 0 0 20px #e74c3c; }
 }
 
+/* ==========================================================================
+   8. RESPONSIVIDADE (MOBILE & TABLET)
+   ========================================================================== */
 
-/* Estilo padrão (Desktop) */
-.user-menu {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    flex-grow: 1;
-}
-
-.user-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* --- AJUSTE PARA DISPOSITIVOS MÓVEIS --- */
+/* Regras gerais para Mobile */
 @media (max-width: 768px) {
-    .user-menu {
-        justify-content: flex-end; /* Empurra tudo para a direita */
-        gap: 10px; /* Espaço pequeno entre a interrogação e o Sair */
+    /* Header Mobile - Mantendo sua altura original de 54px */
+    #main-header { 
+        height: 54px; 
+        padding: 0 12px; 
+        display: flex; 
+        align-items: center;
+        background: #263bf7;
+    }
+    
+    #app-container { height: calc(100vh - 54px); }
+
+    .brand-text h1 { font-size: 0.95rem; line-height: 1.1; font-weight: 700; }
+    .brand-text span { font-size: 0.65rem; opacity: 0.9; }
+    .logo-emoji { font-size: 1.2rem; }
+
+    .user-menu { justify-content: flex-end; gap: 10px; }
+    .user-info { display: none; }
+    .btn-logout { 
+        padding: 5px 12px; 
+        font-size: 0.75rem; 
+        border-radius: 6px; 
+        background: #f1f2f6; 
+        border: none; 
+        color: #ff4757; 
     }
 
-    .user-group {
-        order: 1; /* Garante que o grupo do email/ajuda venha antes */
+    /* Card gaveta no rodapé - Mantendo sua estrutura */
+    .monitor-card {
+        position: fixed;
+        top: auto; bottom: 0; right: 0; left: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        border-radius: 24px 24px 0 0;
+        padding: 0.8rem 1.25rem 1rem;
+        cursor: pointer;
+        transition: max-height 0.4s ease-in-out;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        z-index: 1100;
     }
 
-    /* Esconde o email no mobile se o espaço for pouco (opcional) */
-    .user-info {
-        display: none; 
+    /* Altura exata da sua regra original */
+    .monitor-card.expanded { max-height: 500px; }
+
+    /* Cores de status discretas na borda superior */
+    .monitor-card.safe { border-top: 4px solid #2ecc71; }
+    .monitor-card.danger { border-top: 4px solid #e74c3c; }
+    
+    /* Modo compacto */
+    .monitor-card.compact .data-grid,
+    .monitor-card.compact .footer-info,
+    .monitor-card.compact .temp-info p {
+        display: none;
     }
 
-    .btn-logout {
-        order: 2; /* Sair fica por último na direita */
+    /* Ajuste de tipografia interna para ficar "top" */
+    .info-principal h1 { 
+        font-size: 2.2rem; 
+        margin: 0; 
+        font-weight: 800; 
+        letter-spacing: -1px;
+    }
+    
+    .cidade { font-size: 0.75rem; color: #666; font-weight: 600; text-transform: uppercase; }
+
+    /* Grid de dados mais limpo e moderno */
+    .data-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    .data-item {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+    .data-item .label { font-size: 0.6rem; color: #888; font-weight: 700; display: block; }
+    .data-item .value { font-size: 0.9rem; font-weight: 700; color: #333; }
+
+    /* Seletor (Switch) estilo iOS */
+    .mobile-switch {
+        background: #eee;
+        border-radius: 10px;
+        padding: 3px;
+        display: flex;
+        margin-top: 10px;
+    }
+
+    .btn-switch {
+        flex: 1;
+        border: none;
+        padding: 6px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 8px;
+        background: transparent;
+        transition: 0.2s;
+    }
+
+    .btn-switch.ativo {
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Handle visual (Barrinha) */
+    .drag-handle {
+        display: block;
+        width: 35px; height: 4px;
+        background: #ddd;
+        margin: 0 auto 10px;
+        border-radius: 2px;
+    }
+
+    /* Botão do Mapa - Mantendo sua posição original */
+    .map-button { 
+        position: absolute;
+        bottom: 180px;
+        left: 20px;
+        width: 48px; height: 48px;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    /* Ajuste de posição quando a gaveta expande - Baseado no seu original */
+    .monitor-card.expanded ~ .map-button {
+        bottom: 520px; 
     }
 }
 
-/* Seus estilos de botões permanecem iguais */
-.btn-help {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: white;
-    font-size: 1.3rem;
-    cursor: pointer;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
+/* Ajustes finos para telas muito pequenas */
+@media (max-width: 480px) {
+    .modal-body-scroll p { font-size: 0.85rem; margin-bottom: 10px; }
 }
 
-.btn-logout {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 6px 15px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
+@media (max-height: 600px) {
+    .ajuda-item p { font-size: 0.85rem; }
+    .modal-header h3 { font-size: 1rem; }
 }
 
-/* Ajuste no conteúdo do modal para permitir rolagem */
-.modal-content {
-    max-height: 85vh; /* Ocupa no máximo 85% da altura da tela */
+/* Desktop Only */
+@media (min-width: 769px) {
+    .drag-handle { display: none; }
+}
+
+
+
+/* ==========================================================================
+   APENAS DESKTOP: PREVISÃO FIXA
+   ========================================================================== */
+@media (min-width: 769px) {
+    /* Esconde o botão redondo de abrir, pois o card já estará aberto */
+    #btn-previsao-3dias {
+        display: none !important;
+    }
+
+    /* Transforma o modal em um card fixo no canto inferior direito */
+    #modal-previsao.modal-clima {
+        display: block !important; /* Sempre visível no desktop */
+        position: fixed;
+        top: auto;
+        left: auto;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        height: auto;
+        background: transparent; /* Remove o fundo escuro do modal */
+        pointer-events: none; /* Permite clicar no mapa através do fundo */
+        z-index: 1000;
+    }
+
+    #modal-previsao .modal-content {
+        margin: 0;
+        width: 100%;
+        max-width: none;
+        pointer-events: all; /* Reativa cliques dentro do card */
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: var(--shadow);
+    }
+
+    /* Esconde o botão de fechar (X) no desktop */
+    #modal-previsao .modal-header button {
+        display: none;
+    }
+
+    #modal-previsao .modal-header h3 {
+        font-size: 0.9rem;
+        color: var(--primary);
+    }
+
+    /* Ajusta a grade para ficar melhor em um card fixo */
+    .dias-grid {
+        grid-template-columns: 1fr; /* Lista vertical no desktop */
+        gap: 8px;
+    }
+
+    .dia-card {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 8px 12px;
+        text-align: left;
+        align-items: center;
+    }
+}
+
+
+
+
+
+
+
+
+/* Cores de Status - Mantendo seu layout */
+.safe { border-top: 4px solid #2ecc71 !important; }    /* Verde */
+.warning { border-top: 4px solid #f1c40f !important; } /* Amarelo */
+.danger { border-top: 4px solid #e74c3c !important; }  /* Vermelho */
+
+/* Estilo do texto do alerta mini */
+.alerta-mini.safe { color: #2ecc71; }
+.alerta-mini.warning { color: #f39c12; }
+.alerta-mini.danger { color: #e74c3c; font-weight: bold; }
+
+
+
+
+
+
+
+
+/* Garante que o card principal aceite elementos posicionados */
+.monitor-card {
     display: flex;
     flex-direction: column;
+    overflow: hidden; /* Importante para manter o design limpo */
 }
 
-/* Área de texto interna com rolagem */
-.modal-body-scroll {
-    overflow-y: auto; /* Ativa rolagem vertical se necessário */
-    padding: 10px 15px;
-    scrollbar-width: thin; /* Barra de rolagem mais fina no Firefox */
-}
-
-/* Deixa a fonte um pouco menor no mobile para ganhar espaço */
-@media (max-width: 480px) {
-    .modal-body-scroll p {
-        font-size: 0.85rem;
-        margin-bottom: 10px;
-    }
-}
-
-
-/* Organiza os itens de ajuda */
-.ajuda-item {
+/* Alinhamento do cabeçalho para acomodar o switch na direita */
+.header-resumo {
     display: flex;
+    justify-content: space-between;
     align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 15px;
+    cursor: pointer;
+    padding-bottom: 10px;
 }
 
-.ajuda-item i {
-    font-size: 1.2rem;
-    width: 25px; /* Mantém os ícones alinhados verticalmente */
-    text-align: center;
-    margin-top: 3px;
+.mobile-selector-container {
+    display: flex;
+    margin-top: 5px;
 }
 
-.ajuda-item p {
-    margin: 0;
-    font-size: 0.9rem;
-    color: #444;
-    line-height: 1.4;
+/* Estilo do Botão (Switch) */
+.mobile-switch {
+    display: flex;
+    background: rgba(255, 255, 255, 0.2);
+    background-color: #eee; /* Cor de fundo do switch */
+    border-radius: 20px;
+    padding: 2px;
+    width: 140px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Ajuste da barra de rolagem para ficar discreta */
-.modal-body-ajuda::-webkit-scrollbar {
-    width: 5px;
+.btn-switch {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 0;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #666;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.modal-body-ajuda::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 10px;
+.btn-switch.ativo {
+    background: #3182ce;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* No Mobile, reduz um pouco a fonte se a tela for muito pequena */
-@media (max-height: 600px) {
-    .ajuda-item p {
-        font-size: 0.85rem;
-    }
-    .modal-header h3 {
-        font-size: 1rem;
+/* Ocultar em Desktop */
+@media (min-width: 769px) {
+    .mobile-selector-container {
+        display: none;
     }
 }
