@@ -432,25 +432,21 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // 1. Impede o banner padrão de aparecer aleatoriamente
-    e.preventDefault();
-    // 2. Guarda o evento
-    deferredPrompt = e;
-    
-    console.log("PWA: Evento de instalação capturado e pronto.");
-
-    // 3. AGORA A MÁGICA: No primeiro clique do usuário no site (em qualquer lugar),
-    // nós disparamos o banner oficial de instalação na hora.
-    window.addEventListener('click', () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt(); // Abre a caixa de instalação oficial
-
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('Usuário aceitou a instalação');
-                }
-                deferredPrompt = null;
-            });
-        }
-    }, { once: true }); // 'once: true' garante que isso só aconteça no primeiro clique
+    e.preventDefault(); // Previne o banner padrão
+    deferredPrompt = e; // Guarda o evento
+    console.log("PWA: Evento capturado. O popup aparecerá no próximo clique na tela.");
 });
+
+// DISPARO AUTOMÁTICO NO PRIMEIRO CLIQUE
+window.addEventListener('click', () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt(); // Abre o popup nativo de instalação
+        
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('Usuário instalou o app');
+            }
+            deferredPrompt = null;
+        });
+    }
+}, { once: true }); // Executa apenas uma vez
