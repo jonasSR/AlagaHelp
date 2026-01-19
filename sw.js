@@ -28,3 +28,7 @@ self.addEventListener('fetch', (e) => {
     caches.match(e.request).then((res) => res || fetch(e.request))
   );
 });
+
+self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Força o novo Service Worker a se tornar ativo imediatamente
+});
