@@ -1,42 +1,28 @@
-const CACHE_NAME = 'alagahelp-v2'; // Mudei para v2 para forçar atualização
+const CACHE_NAME = 'alagahelp-v1';
 const ASSETS = [
-  './',             // Raiz
-  './index.html',
-  './style.css',
-  './script.js',
-  './clima_3dias.js',
-  './logo-512.png'  // Verifique se este arquivo está na mesma pasta que o index.html
+  '/', 
+  'index.html',
+  'style.css',
+  'script.js',
+  'clima_3dias.js',
+  'logo-512.png'
 ];
 
-// Instala o Service Worker e guarda os arquivos no cache
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Arquivos em cache com sucesso!');
-      return cache.addAll(ASSETS);
+      // Usamos map para tentar adicionar um por um, assim se um falhar, sabemos qual foi
+      return Promise.all(
+        ASSETS.map(url => {
+          return cache.add(url).catch(err => console.log("Falha ao cachear:", url));
+        })
+      );
     })
   );
 });
 
-// Limpa caches antigos se você mudar o nome da CACHE_NAME
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(keyList.map((key) => {
-        if (key !== CACHE_NAME) {
-          console.log('Removendo cache antigo:', key);
-          return caches.delete(key);
-        }
-      }));
-    })
-  );
-});
-
-// Responde com o cache ou busca na rede se não encontrar
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((res) => {
-      return res || fetch(e.request);
-    })
+    caches.match(e.request).then((res) => res || fetch(e.request))
   );
 });
