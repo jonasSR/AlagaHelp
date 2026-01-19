@@ -1,11 +1,11 @@
 const CACHE_NAME = 'alagahelp-v2'; // Mudei para v2 para forçar atualização
 const ASSETS = [
-  'index.html',
-  'style.css',
-  'script.js',
-  'clima_3dias.js',
-  'manifest.json',
-  'logo-512.png' // Ícone adicionado aqui
+  './',             // Raiz
+  './index.html',
+  './style.css',
+  './script.js',
+  './clima_3dias.js',
+  './logo-512.png'  // Verifique se este arquivo está na mesma pasta que o index.html
 ];
 
 // Instala o Service Worker e guarda os arquivos no cache

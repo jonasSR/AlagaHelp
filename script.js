@@ -429,40 +429,30 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// --- REGISTRO DO SERVICE WORKER ---
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log("PWA: Service Worker Registrado"))
+        .catch(err => console.log("PWA: Erro no registro", err));
+}
+
 let deferredPrompt;
 
+// Escuta o evento de instalação
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Impede que o navegador mostre o banner padrão muito rápido
     e.preventDefault();
-    // Guarda o evento para ser disparado quando quisermos
     deferredPrompt = e;
-
-    // Mostra um alerta ou um botão personalizado para o usuário
-    // Aqui usamos um setTimeout para não assustar o usuário assim que a página pisca
-    setTimeout(() => {
-        exibirBannerInstalacao();
-    }, 3000); // 3 segundos após abrir
+    console.log("PWA: Pronto para instalar.");
 });
 
-function exibirBannerInstalacao() {
-    const confirmar = confirm("Instalar o Alaga-Help no seu celular para acesso rápido e notificações?");
-    
-    if (confirmar && deferredPrompt) {
-        // Mostra o prompt oficial do navegador
+// GATILHO DE INSTALAÇÃO NO PRIMEIRO CLIQUE
+// Isso resolve o erro "Banner not shown" pois usa um gesto do usuário
+window.addEventListener('click', () => {
+    if (deferredPrompt) {
         deferredPrompt.prompt();
-        
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('Usuário aceitou a instalação');
-            } else {
-                console.log('Usuário recusou a instalação');
-            }
+        deferredPrompt.userChoice.then((choice) => {
+            console.log(choice.outcome === 'accepted' ? 'PWA: Instalado' : 'PWA: Recusado');
             deferredPrompt = null;
         });
     }
-}
-
-// Log para confirmar que o PWA está rodando
-window.addEventListener('appinstalled', (evt) => {
-    console.log('Alaga-Help instalado com sucesso!');
-});
+}, { once: true });
