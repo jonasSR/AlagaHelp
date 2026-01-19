@@ -161,15 +161,42 @@ body, html {
     }
 
     /* Botão do mapa sobe para não sumir atrás da gaveta */
+  
     .map-button { 
-        bottom: 550px;
-        right: 15px; 
-        width: 46px; 
-        height: 46px; 
-        transition: bottom 0.4s;
-        z-index: 1000; cursor: pointer;
+        position: absolute;
+        bottom: 460px; /* No PC ele fica embaixo */
+        right: 330px; 
+        width: 48px; 
+        height: 48px; 
+        background: rgb(255, 255, 255);
+        border-radius: 4px; /* O Maps usa levemente arredondado, não círculo total */
+        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666; /* Cor cinza padrão */
+        transition: background 0.2s, color 0.2s, bottom 0.4s ease;
+        z-index: 1000;
     }
-    
+
+    .map-button:hover {
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    /* Quando o GPS está ativo e focado (Estilo "azul" do Maps) */
+    .map-button.active {
+        color: #1a73e8; /* Azul Google */
+    }
+
+    @media (max-width: 768px) {
+        /* Sobe o botão quando a gaveta de clima expande */
+        #status-panel:has(.expanded) ~ .map-button {
+            bottom: 520px; 
+        }
+    }
+        
     /* Se a gaveta abrir, o botão sobe mais ainda */
     .monitor-card.expanded ~ .map-button {
         bottom: 420px;
@@ -190,6 +217,7 @@ body, html {
 @media (min-width: 769px) {
     .drag-handle { display: none; }
 }
+
 
 /* AJUSTE ESPECÍFICO PARA O HEADER NO MOBILE */
 @media (max-width: 768px) {
@@ -307,4 +335,277 @@ body, html {
     border: none;
     font-size: 20px;
     color: #999;
+}
+
+.floating-btn-add {
+    position: absolute;
+    bottom: auto; /* Altura para não bater no card mobile */
+    right: 20px;
+    top: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e74c3c; /* Vermelho alerta */
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.floating-btn-add:active {
+    transform: scale(0.9);
+}
+
+.floating-btn-add i { font-size: 1.2rem; }
+.floating-btn-add span { font-size: 1.5rem; font-weight: bold; }
+
+/* Estilo para quando o modo de marcação estiver ativo */
+.modo-marcar-ativo {
+    background: #2c3e50 !important;
+    animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+
+
+
+
+
+
+
+
+#toast-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toast {
+    background: #333;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideIn 0.3s ease, fadeOut 0.5s ease 2.5s forwards;
+    border-left: 5px solid #3182ce;
+}
+
+.toast.success { border-left-color: #2ecc71; }
+.toast.error { border-left-color: #e74c3c; }
+.toast.info { border-left-color: #3498db; }
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateY(-10px); }
+}
+
+
+/* Garante que o toast de confirmação não suma sozinho rápido demais */
+.confirm-toast {
+    padding: 15px !important;
+    min-width: 200px;
+}
+
+.confirm-toast button:active {
+    transform: scale(0.95);
+}
+
+.toast button {
+    transition: opacity 0.2s;
+    font-family: 'Inter', sans-serif;
+}
+
+.toast button:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+/* Garante que o container de confirmação seja interativo e visível */
+.confirmacao-fixa {
+    animation: none !important; /* Remove animações que poderiam esconder o toast */
+    opacity: 1 !important;
+    pointer-events: all !important;
+    min-width: 250px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Estilo base do card com borda mais grossa */
+.monitor-card {
+    border: 4px solid #ccc; /* Borda padrão grossa */
+    transition: all 0.4s ease-in-out;
+    background: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+/* Borda Verde - Sem Chuva */
+.monitor-card.safe {
+    border-color: #2ecc71 !important;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+/* Borda Vermelha - Com Chuva */
+.monitor-card.danger {
+    border-color: #e74c3c !important;
+    box-shadow: 0 4px 20px rgba(231, 76, 60, 0.4);
+    /* Opcional: Efeito pulsar para chamar ainda mais atenção */
+    animation: alert-glow 1.5s infinite alternate;
+}
+
+/* Animação para o estado de perigo */
+@keyframes alert-glow {
+    from { box-shadow: 0 0 5px #e74c3c; }
+    to { box-shadow: 0 0 20px #e74c3c; }
+}
+
+
+/* Estilo padrão (Desktop) */
+.user-menu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-grow: 1;
+}
+
+.user-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* --- AJUSTE PARA DISPOSITIVOS MÓVEIS --- */
+@media (max-width: 768px) {
+    .user-menu {
+        justify-content: flex-end; /* Empurra tudo para a direita */
+        gap: 10px; /* Espaço pequeno entre a interrogação e o Sair */
+    }
+
+    .user-group {
+        order: 1; /* Garante que o grupo do email/ajuda venha antes */
+    }
+
+    /* Esconde o email no mobile se o espaço for pouco (opcional) */
+    .user-info {
+        display: none; 
+    }
+
+    .btn-logout {
+        order: 2; /* Sair fica por último na direita */
+    }
+}
+
+/* Seus estilos de botões permanecem iguais */
+.btn-help {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 1.3rem;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-logout {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* Ajuste no conteúdo do modal para permitir rolagem */
+.modal-content {
+    max-height: 85vh; /* Ocupa no máximo 85% da altura da tela */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Área de texto interna com rolagem */
+.modal-body-scroll {
+    overflow-y: auto; /* Ativa rolagem vertical se necessário */
+    padding: 10px 15px;
+    scrollbar-width: thin; /* Barra de rolagem mais fina no Firefox */
+}
+
+/* Deixa a fonte um pouco menor no mobile para ganhar espaço */
+@media (max-width: 480px) {
+    .modal-body-scroll p {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+}
+
+
+/* Organiza os itens de ajuda */
+.ajuda-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.ajuda-item i {
+    font-size: 1.2rem;
+    width: 25px; /* Mantém os ícones alinhados verticalmente */
+    text-align: center;
+    margin-top: 3px;
+}
+
+.ajuda-item p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #444;
+    line-height: 1.4;
+}
+
+/* Ajuste da barra de rolagem para ficar discreta */
+.modal-body-ajuda::-webkit-scrollbar {
+    width: 5px;
+}
+
+.modal-body-ajuda::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* No Mobile, reduz um pouco a fonte se a tela for muito pequena */
+@media (max-height: 600px) {
+    .ajuda-item p {
+        font-size: 0.85rem;
+    }
+    .modal-header h3 {
+        font-size: 1rem;
+    }
 }

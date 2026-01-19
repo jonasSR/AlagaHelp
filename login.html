@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Alaga-Help</title>
     <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+
+    <div id="toast-container"></div>
+
     <main class="login-container">
         <section class="login-card">
             <header>
@@ -19,7 +23,6 @@
             <form id="login-form">
                 <div class="input-group">
                     <input type="email" id="email" placeholder="E-mail" autocomplete="email" required>
-                    
                     <input type="password" id="password" placeholder="Senha" autocomplete="current-password" required>
                 </div>
                 
@@ -27,12 +30,11 @@
                     <button type="submit" id="btnLogin" class="btn primary">Entrar</button>
                     <button type="button" id="btnCadastro" class="btn secondary">Criar Conta</button>
                 </div>
-                <p id="error-msg" class="error-text"></p>
-            </form>
+                
+                </form>
         </section>
     </main>
 
     <script type="module" src="login.js"></script>
-    
 </body>
 </html>
