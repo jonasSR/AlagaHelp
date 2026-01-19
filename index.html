@@ -14,7 +14,6 @@
     <header id="main-header">
         <div class="header-content">
             <div class="brand">
-                <span class="logo-emoji">🌊</span>
                 <div class="brand-text">
                     <h1>Alaga-Help</h1>
                     <span>São Luiz do Paraitinga</span>
@@ -26,15 +25,35 @@
             </nav>
         </div>
     </header>
-
+    
     <main id="app-container">
         <div id="map"></div>
+
+        <button id="btn-recenter" class="map-button">
+            <i class="fa-solid fa-location-crosshairs"></i>
+        </button>
         
         <aside id="status-panel" class="floating-panel">
-            <h3>Status do Rio</h3>
-            <div class="status-badge alert">Nível Elevado</div>
-            <p>Última atualização: <strong>14:30</strong></p>
+            <div class="monitor-card compact" id="main-monitor" onclick="toggleMonitor()">
+                <div class="drag-handle"></div>
+                <p style="text-align:center; font-size: 0.8rem; color: #666;">Carregando clima...</p>
+            </div>
         </aside>
+
+        <button id="btn-previsao-3dias" class="floating-btn" onclick="abrirModalPrevisao()">
+            📅 <span>3 Dias</span>
+        </button>
+
+        <div id="modal-previsao" class="modal-clima">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Previsão para São Luiz</h3>
+                    <button onclick="fecharModalPrevisao()">✕</button>
+                </div>
+                <div class="dias-grid">
+                    </div>
+            </div>
+        </div>
     </main>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
