@@ -420,3 +420,49 @@ window.confirmarPonto = async function(id) {
 window.toggleMonitor = toggleMonitor;
 // Chamar a função ao carregar a página
 atualizarMonitoramento();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('PWA Ativo!', reg))
+      .catch(err => console.log('Erro PWA:', err));
+  });
+}
+
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Impede que o navegador mostre o banner padrão muito rápido
+    e.preventDefault();
+    // Guarda o evento para ser disparado quando quisermos
+    deferredPrompt = e;
+
+    // Mostra um alerta ou um botão personalizado para o usuário
+    // Aqui usamos um setTimeout para não assustar o usuário assim que a página pisca
+    setTimeout(() => {
+        exibirBannerInstalacao();
+    }, 3000); // 3 segundos após abrir
+});
+
+function exibirBannerInstalacao() {
+    const confirmar = confirm("Instalar o Alaga-Help no seu celular para acesso rápido e notificações?");
+    
+    if (confirmar && deferredPrompt) {
+        // Mostra o prompt oficial do navegador
+        deferredPrompt.prompt();
+        
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                console.log('Usuário aceitou a instalação');
+            } else {
+                console.log('Usuário recusou a instalação');
+            }
+            deferredPrompt = null;
+        });
+    }
+}
+
+// Log para confirmar que o PWA está rodando
+window.addEventListener('appinstalled', (evt) => {
+    console.log('Alaga-Help instalado com sucesso!');
+});
