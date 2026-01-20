@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
+// Essa lista vai guardar as bolinhas para o JS conseguir apagá-las depois
+const marcadoresAtivos = {};
 // 1. Configuração do Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyAs1QzV0ZniAwE9cdpeAY-fJMjJ4WTJsmo",
@@ -201,51 +202,58 @@ map.on('click', (e) => {
 
 // 6. Ler pontos em Tempo Real
 function carregarPontosAlagamento() {
+    // O onSnapshot fica "ouvindo" o banco de dados sem parar
     onSnapshot(collection(db, "alagamentos"), (snapshot) => {
+        
         snapshot.docChanges().forEach(async (change) => {
-            if (change.type === "added") {
-                const data = change.doc.data();
+            const id = change.doc.id;
+            const data = change.doc.data();
+
+            // --- A MÁGICA ACONTECE AQUI: SE FOR REMOVIDO NO ADMIN ---
+            if (change.type === "removed") {
+                if (marcadoresAtivos[id]) {
+                    map.removeLayer(marcadoresAtivos[id]); // Remove a bolinha do mapa na hora
+                    delete marcadoresAtivos[id];           // Apaga da memória
+                    console.log("Ponto removido automaticamente");
+                }
+            }
+
+            // --- SE FOR ADICIONADO OU ATUALIZADO (COR MUDOU) ---
+            if (change.type === "added" || change.type === "modified") {
+                // Se a bolinha já existe, removemos a antiga antes de por a nova (para não duplicar)
+                if (marcadoresAtivos[id]) {
+                    map.removeLayer(marcadoresAtivos[id]);
+                }
+
+                const cor = data.status === "verificado" ? "#3b82f6" : "#ff0000";
                 const isMobile = window.innerWidth < 768;
-                const raioAjustado = isMobile ? 30 : 60;
 
                 const marcador = L.circle([data.lat, data.lng], {
-                    color: '#ff0000',
-                    fillColor: '#ff0000',
+                    color: cor,
+                    fillColor: cor,
                     fillOpacity: 0.5,
-                    radius: raioAjustado,
+                    radius: isMobile ? 30 : 60,
                     weight: 2
                 }).addTo(map);
 
                 const dataHora = data.horario ? data.horario.toDate().toLocaleString('pt-BR') : "Agora";
                 
-                let popupHtml = `
+                // Popup com as informações
+                marcador.bindPopup(`
                     <div style="text-align:center; font-family: sans-serif; width: 160px;">
-                        <b style="color:red;">⚠️ ALAGAMENTO</b><br>
-                        <span id="end-${change.doc.id}" style="font-size:0.85em;">Buscando endereço...</span><br>
+                        <b style="color:${cor};">${data.status === 'verificado' ? '✅ VERIFICADO' : '⚠️ ALAGAMENTO'}</b><br>
+                        <span id="end-${id}" style="font-size:0.85em;">Buscando endereço...</span><br>
                         <small style="color:#666;">${dataHora}</small>
                         <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
                         <div style="display:flex; gap:5px; justify-content:center;">
-                            <button onclick="confirmarPonto('${change.doc.id}')" style="background:#2ecc71; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Ainda está</button>
-                            <button onclick="removerPonto('${change.doc.id}')" style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Limpou</button>
+                            <button onclick="confirmarPonto('${id}')" style="background:#2ecc71; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Ainda está</button>
+                            <button onclick="removerPonto('${id}')" style="background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:0.7rem; cursor:pointer;">Limpou</button>
                         </div>
                     </div>
-                `;
+                `, { closeButton: false });
 
-                marcador.bindPopup(popupHtml, { closeButton: false });
-
-                marcador.on('popupopen', async function () {
-                    const span = document.getElementById(`end-${change.doc.id}`);
-                    if (span && span.innerText === "Buscando endereço...") {
-                        try {
-                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${data.lat}&lon=${data.lng}`);
-                            const addr = await res.json();
-                            const rua = addr.address.road || addr.address.suburb || addr.display_name.split(',')[0];
-                            span.innerText = rua;
-                        } catch (e) { 
-                            span.innerText = "Endereço indisponível"; 
-                        }
-                    }
-                });
+                // Guarda a referência da bolinha na nossa lista usando o ID do Firebase
+                marcadoresAtivos[id] = marcador;
             }
         });
     });
@@ -261,21 +269,27 @@ async function atualizarMonitoramento() {
         const diario = data.daily;
         const horario = data.hourly;
         const horaIndex = new Date().getHours();
-        const vol = atual.precipitation; 
         
-        let statusTexto = "SEM CHUVA";
-        let statusClasse = "safe"; // Verde
+        const vol = atual.precipitation; 
+        const probAgora = horario.precipitation_probability[horaIndex]; // Pega a probabilidade da hora atual
+        
+        // --- LÓGICA HÍBRIDA DE STATUS (IGUAL AO ADMIN) ---
+        let statusTexto = "CÉU LIMPO";
+        let statusClasse = "safe"; 
 
-        // Lógica de cores baseada na intensidade
         if (vol > 0) {
             if (vol >= 5.0) {
                 statusTexto = "CHUVA FORTE";
-                statusClasse = "danger"; // Vermelho
+                statusClasse = "danger"; 
             } else {
-                // Para Garoa ou Chuva Moderada
                 statusTexto = vol < 1.0 ? "GAROA FRACA" : "CHUVA MODERADA";
-                statusClasse = "warning"; // Amarelo/Laranja
+                statusClasse = "warning"; 
             }
+        } 
+        // Se não chove volume, mas a probabilidade é alta (Acima de 60%)
+        else if (probAgora >= 60) {
+            statusTexto = "RISCO DE CHUVA";
+            statusClasse = "warning";
         }
 
         const painel = document.getElementById('status-panel');
@@ -287,7 +301,7 @@ async function atualizarMonitoramento() {
                     <div class="header-resumo" onclick="toggleMonitor()">
                         <div class="info-principal">
                             <span class="cidade">S.L. Paraitinga</span>
-                            <h1>${atual.temperature_2m}°</h1>
+                            <h1>${Math.round(atual.temperature_2m)}°</h1>
                             <div class="alerta-mini ${statusClasse}">${statusTexto}</div>
                         </div>
 
@@ -301,19 +315,36 @@ async function atualizarMonitoramento() {
 
                     <div class="detalhes-expansíveis">
                         <div class="data-grid">
-                            <div class="data-item"><span class="label">SENSAÇÃO</span><span class="value">${horario.apparent_temperature[horaIndex]}°C</span></div>
-                            <div class="data-item"><span class="label">VOLUME AGORA</span><span class="value">${vol} mm</span></div>
-                            <div class="data-item"><span class="label">PANCADAS</span><span class="value">${atual.showers} mm</span></div>
-                            <div class="data-item"><span class="label">VENTO MÁX</span><span class="value">${diario.wind_speed_10m_max[0]} km/h</span></div>
+                            <div class="data-item">
+                                <span class="label">SENSAÇÃO</span>
+                                <span class="value">${Math.round(horario.apparent_temperature[horaIndex])}°C</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">PROB. CHUVA</span>
+                                <span class="value">${probAgora}%</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">VOLUME</span>
+                                <span class="value">${vol} mm</span>
+                            </div>
+                            <div class="data-item">
+                                <span class="label">VENTO MÁX</span>
+                                <span class="value">${diario.wind_speed_10m_max[0]} km/h</span>
+                            </div>
                         </div>
                         <div class="footer-info">
-                            <div class="sun-cycle"><span>🌅 ${diario.sunrise[0].split('T')[1]}</span><span>🌇 ${diario.sunset[0].split('T')[1]}</span></div>
+                            <div class="sun-cycle">
+                                <span>🌅 ${diario.sunrise[0].split('T')[1]}</span>
+                                <span>🌇 ${diario.sunset[0].split('T')[1]}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             `;
         }
-    } catch (e) { console.error("Erro clima:", e); }
+    } catch (e) { 
+        console.error("Erro ao atualizar monitoramento do usuário:", e); 
+    }
 }
 // Função global para trocar o estado do botão
 window.setSwitch = function(tipo) {
@@ -493,3 +524,5 @@ window.addEventListener('click', () => {
 }, { once: true });
 
 atualizarMonitoramento();
+
+

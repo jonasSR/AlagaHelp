@@ -471,6 +471,7 @@ body, html {
         display: none;
     }
 
+    
     /* Ajuste de tipografia interna para ficar "top" */
     .info-principal h1 { 
         font-size: 2.2rem; 
@@ -537,7 +538,7 @@ body, html {
 
     /* Botão do Mapa - Mantendo sua posição original */
     .map-button { 
-        position: absolute;
+        position: fixed;
         bottom: 180px;
         left: 20px;
         width: 48px; height: 48px;
