@@ -633,50 +633,48 @@ onAuthStateChanged(auth, (user) => {
 
 
 
-// PWA Logic atualizado
+// --- PWA LOGIC REVISADO ---
 let deferredPrompt;
 const installContainer = document.getElementById('install-container');
 const btnInstall = document.getElementById('btn-install-pwa');
 
-// 1. Escuta se o app pode ser instalado
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    
-    // MOSTRA O BOTÃO na tela mudando o estilo para flex ou block
-    if (installContainer) {
-        installContainer.style.display = 'block';
-    }
-    
-    console.log('PWA: Pronto para instalação');
+    if (installContainer) installContainer.style.display = 'block';
 });
 
-// 2. Ação ao clicar no botão de instalação
 if (btnInstall) {
     btnInstall.addEventListener('click', async () => {
         if (!deferredPrompt) return;
 
-        // Mostra o prompt oficial do navegador
         deferredPrompt.prompt();
-        
         const { outcome } = await deferredPrompt.userChoice;
-        logEvent(analytics, 'pwa_install_choice', { outcome: outcome });
-
+        
         if (outcome === 'accepted') {
             console.log('Usuário aceitou a instalação');
-            installContainer.style.display = 'none';
+            // Esconde o botão imediatamente após o clique para não clicar duas vezes
+            if (installContainer) installContainer.style.display = 'none';
         }
         deferredPrompt = null;
     });
 }
 
-// 3. Registra sucesso
+// Este evento SÓ dispara quando o Android confirma que o ícone foi para a tela inicial
 window.addEventListener('appinstalled', (evt) => {
-    logEvent(analytics, 'pwa_install_success');
+    // 1. Limpa qualquer rastro do botão
     if (installContainer) installContainer.style.display = 'none';
-    
-    // MENSAGEM FOCO NA EXPERIÊNCIA:
-    alert("✅ Alaga-Help SLP instalado! Agora feche esta aba do navegador e abra o App pelo ícone na sua tela inicial.");
+
+    // 2. Mensagem clara de fechamento
+    setTimeout(() => {
+        alert("✅ INSTALADO COM SUCESSO!\n\nEste navegador será fechado. Abra o Alaga-Help pelo ícone que apareceu na sua tela inicial.");
+        
+        // Tenta fechar a aba (só funciona se a aba foi aberta por link, mas vale a tentativa)
+        window.close();
+        
+        // Se não fechar, redireciona para uma página preta ou limpa para forçar o cara a sair
+        window.location.href = "about:blank"; 
+    }, 500);
 });
 
 // 4. Registro do Service Worker (Mantido)
