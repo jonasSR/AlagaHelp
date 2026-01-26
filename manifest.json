@@ -1,6 +1,6 @@
 {
   "name": "Alaga-Help SLP",
-  "short_name": "AlagaHelp SLP",
+  "short_name": "AlagaHelp",
   "description": "Monitoramento de Alagamentos em São Luiz do Paraitinga",
   "start_url": "index.html",
   "display": "standalone",

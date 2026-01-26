@@ -660,21 +660,21 @@ if (btnInstall) {
     });
 }
 
-// Este evento SÓ dispara quando o Android confirma que o ícone foi para a tela inicial
 window.addEventListener('appinstalled', (evt) => {
-    // 1. Limpa qualquer rastro do botão
+    // 1. Esconde o botão de instalação
     if (installContainer) installContainer.style.display = 'none';
 
-    // 2. Mensagem clara de fechamento
+    // 2. Mostra a tela de sucesso gigante
+    const overlay = document.getElementById('overlay-pwa-sucesso');
+    if (overlay) {
+        overlay.style.display = 'flex';
+    }
+
+    // 3. Após 4 segundos, tenta "limpar" a aba para forçar a saída
     setTimeout(() => {
-        alert("✅ INSTALADO COM SUCESSO!\n\nEste navegador será fechado. Abra o Alaga-Help pelo ícone que apareceu na sua tela inicial.");
-        
-        // Tenta fechar a aba (só funciona se a aba foi aberta por link, mas vale a tentativa)
         window.close();
-        
-        // Se não fechar, redireciona para uma página preta ou limpa para forçar o cara a sair
         window.location.href = "about:blank"; 
-    }, 500);
+    }, 4000);
 });
 
 // 4. Registro do Service Worker (Mantido)

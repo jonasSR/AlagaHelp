@@ -17,7 +17,6 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-dark);
-    /* Background com gradiente para profundidade */
     background: radial-gradient(circle at top right, #1b263b, #0d1b2a);
     height: 100vh;
     display: flex;
@@ -37,16 +36,27 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* Efeito de flutuação suave no desktop */
+/* --- ESTILO DA NOVA LOGO --- */
+.logo-container {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.logo-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 15px; /* Deixa a logo elegante */
+    /* Removido o font-size do antigo logo-icon */
+}
+
+/* --------------------------- */
+
 @media (min-width: 768px) {
     .login-card:hover {
         transform: translateY(-5px);
     }
-}
-
-.logo-icon {
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
 }
 
 h1 {
@@ -121,17 +131,7 @@ p {
     min-height: 1.2rem;
 }
 
-/* Ajustes para telas bem pequenas (celulares antigos) */
-@media (max-width: 350px) {
-    .login-card {
-        padding: 1.5rem;
-    }
-}
-
-
-
-
-
+/* TOAST SYSTEM */
 #toast-container {
     position: fixed;
     top: 20px;
