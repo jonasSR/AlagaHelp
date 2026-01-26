@@ -674,7 +674,9 @@ if (btnInstall) {
 window.addEventListener('appinstalled', (evt) => {
     logEvent(analytics, 'pwa_install_success');
     if (installContainer) installContainer.style.display = 'none';
-    mostrarMensagem("App instalado com sucesso!", "success");
+    
+    // MENSAGEM FOCO NA EXPERIÊNCIA:
+    alert("✅ Alaga-Help SLP instalado! Agora feche esta aba do navegador e abra o App pelo ícone na sua tela inicial.");
 });
 
 // 4. Registro do Service Worker (Mantido)
@@ -687,15 +689,63 @@ if ('serviceWorker' in navigator) {
 }
 
 
-// Exponha a função globalmente para que o 'onclick' no HTML funcione
+// 1. Função para MOSTRAR a modal (Limite de 4 vezes por dia)
+window.verificarExibicaoAviso = function() {
+    const modal = document.getElementById('modal-aviso');
+    if (!modal) return;
+
+    const hoje = new Date().toLocaleDateString(); // Ex: "26/01/2026"
+    
+    // Recupera os dados salvos ou cria um objeto novo
+    let dadosAviso = JSON.parse(localStorage.getItem('controleAviso')) || { data: hoje, contagem: 0 };
+
+    // Se mudou o dia, reseta o contador
+    if (dadosAviso.data !== hoje) {
+        dadosAviso = { data: hoje, contagem: 0 };
+    }
+
+    // Só mostra se a contagem for menor que 4
+    if (dadosAviso.contagem < 4) {
+        setTimeout(() => {
+            modal.style.setProperty('display', 'flex', 'important');
+            
+            // Incrementa e salva que o aviso foi exibido
+            dadosAviso.contagem += 1;
+            localStorage.setItem('controleAviso', JSON.stringify(dadosAviso));
+            console.log(`Aviso exibido ${dadosAviso.contagem}/4 hoje.`);
+        }, 800); 
+    } else {
+        console.log("Limite diário de avisos atingido (4/4).");
+    }
+};
+
+// 2. Sua função de FECHAR (Atualizada)
 window.fecharAviso = function() {
     const modal = document.getElementById('modal-aviso');
     if (modal) {
-        modal.style.display = 'none';
+        modal.style.setProperty('display', 'none', 'important');
         
-        // Registra o evento no Analytics se a função existir
+        // Registra o evento no Analytics
         if (typeof logEvent === "function") {
             logEvent(analytics, 'aviso_responsabilidade_aceito');
         }
     }
 };
+
+
+
+
+// Verifica se o usuário está acessando pelo navegador ou pelo App Instalado
+function verificarSeEstaNoApp() {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+                        || window.navigator.standalone 
+                        || document.referrer.includes('android-app://');
+
+    if (!isStandalone && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        // Se estiver no celular mas NÃO for no App, mostra um alerta
+        mostrarMensagem("🚀 Para uma experiência melhor, use o App instalado na sua tela inicial!", "info", 10000);
+    }
+}
+
+// Chama a verificação
+verificarSeEstaNoApp();

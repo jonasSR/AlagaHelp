@@ -1019,6 +1019,7 @@ body, html {
     border-radius: 20px;
     overflow: hidden;
     animation: zoomIn 0.3s ease;
+    
 }
 
 .modal-header-alerta {
