@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alaga-Help SLP | Monitoramento</title>
+    <title>ALAGA-HELP SLP CIDADÃO</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -29,7 +29,7 @@
             
             <div class="modal-body-alerta">
                 <p class="destaque">
-                    O <strong>Alaga-Help</strong> utiliza dados do <strong>Open-Meteo</strong>, que processa modelos matemáticos globais de supercomputadores (como o ECMWF e GFS), os mesmos usados por grandes telejornais.
+                    O <strong>Alaga-Help SLP</strong> utiliza dados do <strong>Open-Meteo</strong>, que processa modelos matemáticos globais de supercomputadores (como o ECMWF e GFS), os mesmos usados por grandes telejornais.
                 </p>
                 
                 <div class="card-responsabilidade">
@@ -53,7 +53,7 @@
     <div class="header-content">
         <div class="brand">
             <div class="brand-text">
-                <h1>Alaga-Help</h1>
+                <h1>Alaga-Help SLP</h1>
                 <span>São Luiz do Paraitinga</span>
             </div>
         </div>
@@ -120,11 +120,33 @@
         <div id="modal-ajuda" class="modal-clima" style="display: none;">
             <div class="modal-content" style="max-height: 90vh; display: flex; flex-direction: column;">
                 <div class="modal-header">
-                    <h3>Como usar o Alaga-Help</h3>
+                    <h3>Como usar o Alaga-Help SLP</h3>
                     <button onclick="fecharModalAjuda()">✕</button>
                 </div>
                 
                 <div class="modal-body-ajuda" style="overflow-y: auto; padding: 15px; flex: 1;">
+
+                    <div style="background: #f0f7ff; border: 1px solid #bee3f8; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #3182ce;">
+                        <h4 style="color: #2c5282; margin: 0 0 8px 0; font-size: 0.95rem; text-transform: uppercase;">
+                            <i class="fa-solid fa-city"></i> Compromisso com São Luiz do Paraitinga
+                        </h4>
+                        <p style="font-size: 0.85rem; color: #2d3748; line-height: 1.5; margin-bottom: 10px;">
+                            O <strong>Alaga-Help</strong> é uma plataforma de monitoramento colaborativo desenvolvida para fortalecer a resiliência da nossa cidade. Este é um projeto focado no <strong>suporte à população</strong>, unindo tecnologia de ponta e engajamento comunitário para salvar vidas e proteger patrimônios.
+                        </p>
+                        <p style="font-size: 0.82rem; color: #4a5568; margin-bottom: 0;">
+                            Sua participação é fundamental: ao relatar um ponto de alagamento, você gera dados em tempo real que auxiliam toda a comunidade a tomar decisões mais seguras.
+                        </p>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e0; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.8rem;">
+                        <p style="color: #4a5568; margin-bottom: 8px;">
+                            <strong>Tecnologia:</strong> Dados processados via <strong>Open-Meteo</strong> (Modelos ECMWF/GFS), referências globais em meteorologia.
+                        </p>
+                        <div style="color: #c53030; font-weight: 500; border-top: 1px solid #edf2f7; padding-top: 8px;">
+                            <i class="fa-solid fa-triangle-exclamation"></i> <strong>Aviso:</strong> Em caso de alertas da <strong>Defesa Civil</strong> ou sirenes, siga as orientações oficiais imediatamente. Este app possui caráter informativo.
+                        </div>
+                    </div>
+
                     <div class="ajuda-item">
                         <i class="fa-solid fa-crosshairs" style="color: #3182ce;"></i>
                         <p><strong>Localize-se:</strong> O alvo centraliza o mapa na sua posição atual.</p>
@@ -159,7 +181,7 @@
                 </div>
 
                 <div style="padding: 10px 15px 15px;">
-                    <button class="btn-entendi" onclick="fecharModalAjuda()" style="width:100%; background:#3182ce; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 1rem;">Entendi</button>
+                    <button class="btn-entendi" onclick="fecharModalAjuda()" style="width:100%; background:#3182ce; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold; font-size: 1rem;">Entendi e Aceito</button>
                 </div>
             </div>
         </div>
