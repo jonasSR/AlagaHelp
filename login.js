@@ -2,7 +2,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { 
     getAuth, 
     signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword 
+    createUserWithEmailAndPassword,
+    signInAnonymously // <--- Adicionado para suportar login sem cadastro
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -47,6 +48,7 @@ const traduzirErro = (code) => {
         case 'auth/invalid-credential': return "E-mail ou senha incorretos.";
         case 'auth/user-not-found': return "Usuário não encontrado.";
         case 'auth/wrong-password': return "Senha incorreta.";
+        case 'auth/operation-not-allowed': return "O login anônimo não está ativado no Firebase.";
         default: return "Ocorreu um erro inesperado. Tente novamente.";
     }
 };
@@ -106,4 +108,25 @@ document.getElementById('btnCadastro').onclick = async (e) => {
     }
 };
 
+// --- ATUALIZAÇÃO: LOGIN ANÔNIMO (ENTRAR SEM CADASTRO) ---
+const btnAnonimo = document.getElementById('btnAnonimo');
+if (btnAnonimo) {
+    btnAnonimo.onclick = async (e) => {
+        e.preventDefault();
+        mostrarMensagem("Acessando modo rápido...", "info");
+
+        try {
+            const userCredential = await signInAnonymously(auth);
+            if (userCredential.user) {
+                mostrarMensagem("Acesso autorizado! Entrando...", "success");
+                setTimeout(() => {
+                    window.location.replace("index.html");
+                }, 1000);
+            }
+        } catch (err) {
+            console.error("Erro no login anônimo:", err.code);
+            mostrarMensagem(traduzirErro(err.code), "error");
+        }
+    };
+}
 

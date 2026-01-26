@@ -1,7 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-// Essa lista vai guardar as bolinhas para o JS conseguir apagá-las depois
+
+import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+
 const marcadoresAtivos = {};
 // 1. Configuração do Firebase
 const firebaseConfig = {
@@ -16,17 +18,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const analytics = getAnalytics(app);
 
-// --- FUNÇÃO TOAST (MENSAGENS) ---
-function mostrarMensagem(texto, tipo = 'info') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const toast = document.createElement('div');
-    toast.className = `toast ${tipo}`;
-    toast.innerText = texto;
-    container.appendChild(toast);
-    setTimeout(() => { toast.remove(); }, 3000);
-}
 
 // --- FUNÇÃO DE CONFIRMAÇÃO PERSONALIZADA ---
 function confirmarAcao(texto, callback) {
@@ -102,63 +95,90 @@ onAuthStateChanged(auth, (user) => {
 });
 
 function tentarAtivarGPSAoEntrar() {
-    pedirLocalizacao();
+    pedirLocalizacao(); // Tenta localizar em silêncio
     setTimeout(() => {
         if (!markerUsuario) {
+            // Em vez de mostrarMensagem, apenas faz o botão de alvo brilhar (atenção)
             document.getElementById('btn-recenter').classList.add('attention');
-            mostrarMensagem("Toque no ícone de alvo para ativar seu GPS", "info");
+            // Removi o mostrarMensagem daqui
         }
     }, 2500);
 }
 
-// 4. Lógica de Localização
-function pedirLocalizacao() {
-    if ("geolocation" in navigator) {
-        navigator.geolocation.watchPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                const bolinhaIcon = L.divIcon({
-                    html: `<div class="user-radar-marker"><div class="dot"></div><div class="pulse"></div></div>`,
-                    className: 'custom-div-icon',
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
-                });
 
-                if (markerUsuario) {
-                    markerUsuario.setLatLng([latitude, longitude]);
-                } else {
-                    markerUsuario = L.marker([latitude, longitude], { icon: bolinhaIcon }).addTo(map);
-                }
-
-                if (primeiraVez) {
-                    map.flyTo([latitude, longitude], 16, { animate: true, duration: 2.0 });
-                    primeiraVez = false;
-                    document.getElementById('btn-recenter').classList.remove('attention');
-                }
-            },
-            (error) => {
-                if (error.code === error.PERMISSION_DENIED) {
-                    document.getElementById('btn-recenter').classList.add('attention');
-                    mostrarMensagem("Acesso ao GPS negado pelo navegador.", "error");
-                }
-            },
-            { enableHighAccuracy: true }
-        );
-    } else {
-        mostrarMensagem("Seu navegador não suporta geolocalização.", "error");
-    }
-}
-
+// --- BOTÃO RECENTRALIZAR ---
 const btnRecenter = document.getElementById('btn-recenter');
 btnRecenter.addEventListener('click', () => {
     btnRecenter.classList.remove('attention');
+    
     if (markerUsuario) {
+        // Se já temos o GPS, apenas voamos para lá (sem mensagens)
         map.flyTo(markerUsuario.getLatLng(), 17, { animate: true, duration: 1.5 });
     } else {
+        // Se NÃO temos, chamamos a função, mas sem colocar mensagem aqui fora
         pedirLocalizacao();
-        mostrarMensagem("Solicitando acesso à sua localização...", "info");
     }
 });
+
+// --- LÓGICA DE LOCALIZAÇÃO MELHORADA ---
+let solicitandoGPS = false; // Variável de controle
+
+function pedirLocalizacao() {
+    if (!("geolocation" in navigator)) {
+        mostrarMensagem("Seu navegador não suporta GPS.", "error");
+        return;
+    }
+
+    // Se já estivermos tentando, não faz nada para não acumular
+    if (solicitandoGPS) return;
+    solicitandoGPS = true;
+
+    // Só mostra mensagem se o GPS demorar mais de 1 segundo para responder
+    const timeoutMensagem = setTimeout(() => {
+        if (!markerUsuario) {
+            mostrarMensagem("Buscando sinal do GPS...", "info");
+        }
+    }, 1000);
+
+    navigator.geolocation.watchPosition(
+        (position) => {
+            clearTimeout(timeoutMensagem); // Cancela a mensagem se achou rápido
+            solicitandoGPS = false; 
+
+            const { latitude, longitude } = position.coords;
+            const bolinhaIcon = L.divIcon({
+                html: `<div class="user-radar-marker"><div class="dot"></div><div class="pulse"></div></div>`,
+                className: 'custom-div-icon',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+            });
+
+            if (markerUsuario) {
+                markerUsuario.setLatLng([latitude, longitude]);
+            } else {
+                markerUsuario = L.marker([latitude, longitude], { icon: bolinhaIcon }).addTo(map);
+            }
+
+            if (primeiraVez) {
+                map.flyTo([latitude, longitude], 16, { animate: true, duration: 2.0 });
+                primeiraVez = false;
+                document.getElementById('btn-recenter').classList.remove('attention');
+            }
+        },
+        (error) => {
+            clearTimeout(timeoutMensagem); // Cancela a mensagem de "buscando"
+            solicitandoGPS = false;
+
+            if (error.code === error.PERMISSION_DENIED) {
+                document.getElementById('btn-recenter').classList.add('attention');
+                mostrarMensagem("Ative o GPS para usar o mapa.", "error");
+            }
+        },
+        { enableHighAccuracy: true }
+    );
+}
+
+
 
 let modoMarcacao = false;
 
@@ -175,31 +195,67 @@ btnAdd.addEventListener('click', (e) => {
     }
 });
 
-// --- CORREÇÃO: Usando confirmarAcao no clique do mapa ---
+
+// --- FUNÇÃO TOAST (MENSAGENS) ATUALIZADA ---
+function mostrarMensagem(texto, tipo = 'info', duracao = 5000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${tipo}`;
+    toast.innerText = texto;
+    container.appendChild(toast);
+    
+    // Agora o tempo de remoção é dinâmico
+    setTimeout(() => { 
+        toast.style.opacity = '0'; // Suaviza a saída se tiver transição no CSS
+        setTimeout(() => toast.remove(), 500); 
+    }, duracao);
+}
+
+
+// --- LÓGICA DE CLIQUE NO MAPA ---
 map.on('click', (e) => {
-    if (!usuarioLogado || !modoMarcacao) return;
+    // Se não estiver logado, não faz nada
+    if (!usuarioLogado) return;
 
-    confirmarAcao("Deseja registrar um ponto de alagamento nesta localização?", async () => {
-        mostrarMensagem("Registrando...", "info");
-        try {
-            await addDoc(collection(db, "alagamentos"), {
-                lat: e.latlng.lat,
-                lng: e.latlng.lng,
-                usuario: usuarioLogado.email,
-                horario: serverTimestamp()
-            });
-            mostrarMensagem("Ponto registrado com sucesso!", "success");
-        } catch (error) {
-            console.error("Erro Firestore:", error);
-            mostrarMensagem("Erro ao salvar.", "error");
-        } finally {
-            // Só desativa o modo e o botão após a confirmação/processamento
-            modoMarcacao = false;
-            btnAdd.classList.remove('modo-marcar-ativo');
+    if (modoMarcacao) {
+        // Se o modo estiver ativo, abre a confirmação para salvar (seu código atual)
+        confirmarAcao("Deseja registrar um ponto de alagamento nesta localização?", async () => {
+            mostrarMensagem("Registrando...", "info");
+            try {
+                await addDoc(collection(db, "alagamentos"), {
+                    lat: e.latlng.lat,
+                    lng: e.latlng.lng,
+                    usuario: usuarioLogado.email || "Acesso Rápido",
+                    uid: usuarioLogado.uid,
+                    horario: serverTimestamp(),
+                    cidade: "São Luiz do Paraitinga",
+                    status: "pendente"
+                });
+                mostrarMensagem("Ponto registrado com sucesso!", "success");
+            } catch (error) {
+                console.error("Erro Firestore:", error);
+                mostrarMensagem("Erro ao salvar.", "error");
+            } finally {
+                modoMarcacao = false;
+                const btnAdd = document.getElementById('btn-add-alagamento');
+                if (btnAdd) btnAdd.classList.remove('modo-marcar-ativo');
+            }
+        });
+    } 
+    else {
+        // MENSAGEM AJUSTADA: Referenciando o ícone de localização e com 8 segundos
+        mostrarMensagem("⚠️ Clique no botão vermelho com ícone de localização para marcar um ponto no mapa.", "info", 8000);
+        
+        // Faz o botão da imagem piscar e tremer para o usuário achar
+        const btnAdd = document.getElementById('btn-add-alagamento');
+        if (btnAdd) {
+            btnAdd.classList.add('atencao-shake');
+            // Remove a animação após 2 segundos para não ficar cansativo
+            setTimeout(() => btnAdd.classList.remove('atencao-shake'), 2000);
         }
-    });
+    }
 });
-
 // 6. Ler pontos em Tempo Real
 function carregarPontosAlagamento() {
     // O onSnapshot fica "ouvindo" o banco de dados sem parar
@@ -241,7 +297,7 @@ function carregarPontosAlagamento() {
                 // Popup com as informações
                 marcador.bindPopup(`
                     <div style="text-align:center; font-family: sans-serif; width: 160px;">
-                        <b style="color:${cor};">${data.status === 'verificado' ? '✅ VERIFICADO' : '⚠️ ALAGAMENTO'}</b><br>
+                        <b style="color:${cor};">${data.status === 'verificado' ? '✅ VERIFICADO' : '⚠️ RELATO DE ALAGAMENTO'}</b><br>
                         <span id="end-${id}" style="font-size:0.85em;">Buscando endereço...</span><br>
                         <small style="color:#666;">${dataHora}</small>
                         <hr style="margin:8px 0; border:0; border-top:1px solid #eee;">
@@ -295,8 +351,10 @@ async function atualizarMonitoramento() {
         const painel = document.getElementById('status-panel');
         if (painel) {
             painel.innerHTML = `
-                <div class="monitor-card compact ${statusClasse}" id="main-monitor">
-                    <div class="drag-handle"></div>
+               <div class="monitor-card compact ${statusClasse}" id="main-monitor">
+                    <div class="drag-handle" onclick="toggleMonitor()">
+                        <i class="fa-solid fa-chevron-up indicador-seta"></i>
+                    </div>
                     
                     <div class="header-resumo" onclick="toggleMonitor()">
                         <div class="info-principal">
@@ -450,27 +508,76 @@ export async function carregarPrevisao3Dias() {
 
         for (let i = 1; i <= 3; i++) {
             const dataRaw = diario.time[i];
-            const [ano, mes, dia] = dataRaw.split('-');
             const dataObj = new Date(dataRaw + 'T00:00');
+            const [ano, mes, dia] = dataRaw.split('-');
             const nomeDia = i === 1 ? "Amanhã" : diasSemana[dataObj.getDay()];
+            
             const prob = diario.precipitation_probability_max[i] || 0;
             const somaChuva = diario.precipitation_sum[i] || 0;
-            let statusTexto = somaChuva > 0 ? "Chuva" : "Céu Limpo";
-            let statusCor = somaChuva > 0 ? "#3498db" : "#2ecc71";
+            const vento = diario.wind_speed_10m_max[i] || 0;
 
-            containerPrevisao.innerHTML += `
-                <div class="dia-card" style="border-top: 4px solid ${statusCor}; flex: 1;">
-                    <b style="font-size:0.8rem;">${nomeDia}</b>
-                    <small style="display:block;">${dia}/${mes}</small>
-                    <span style="color:${statusCor}; font-weight:bold; font-size:0.7rem;">${statusTexto}</span>
-                    <div style="font-size:0.8rem">
+            // --- LÓGICA DE PRECISÃO (MANTIDA) ---
+            let statusTexto = "Céu Limpo";
+            let statusCor = "#2ecc71";
+
+            if (somaChuva > 0.2) {
+                if (somaChuva >= 10 || vento > 30) {
+                    statusTexto = "ALERTA: CHUVA";
+                    statusCor = "#e67e22";
+                } else if (somaChuva < 5 && prob > 70) {
+                    statusTexto = "INSTÁVEL";
+                    statusCor = "#f1c40f";
+                } else {
+                    statusTexto = "CHUVA LEVE";
+                    statusCor = "#3498db";
+                }
+            } else if (prob > 50) {
+                statusTexto = "MUITO NUBLADO";
+                statusCor = "#95a5a6";
+            }
+
+            if (somaChuva > 30) {
+                statusTexto = "PERIGO: TEMPORAL";
+                statusCor = "#e74c3c";
+            }
+
+            // --- TEMPLATE COM ALINHAMENTO FIXO ---
+        containerPrevisao.innerHTML += `
+            <div class="dia-card" style="border-top: 4px solid ${statusCor}; padding: 12px; display: flex; flex-direction: column; min-height: 140px;">
+                
+                <div style="margin-bottom: 8px;"> 
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: 4px;">
+                        <b style="font-size:0.85rem; line-height: 1.2;">${nomeDia}</b>
+                        <span style="font-size:0.6rem; background:${statusCor}; color:white; padding:2px 5px; border-radius:3px; font-weight:bold; white-space: nowrap;">
+                            ${statusTexto}
+                        </span>
+                    </div>
+                    <small style="display:block; color: #666;">${dia}/${mes}</small>
+                </div>
+
+                <div style="margin-top: 5px;">
+                    <div style="display:flex; gap:12px; font-size:0.9rem; margin-bottom:8px; font-weight: bold;">
                         <span style="color:#e53e3e">↑${Math.round(diario.temperature_2m_max[i])}°</span>
                         <span style="color:#3182ce">↓${Math.round(diario.temperature_2m_min[i])}°</span>
                     </div>
-                    <div style="font-size:0.65rem;">💧${prob}% | 📏${somaChuva.toFixed(1)}mm</div>
-                </div>`;
+                    
+                    <div style="font-size:0.75rem; color:#444; display:grid; grid-template-columns: 1fr 1fr; gap:6px; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span>💧</span><b>${prob}%</b>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span>📏</span><b>${somaChuva.toFixed(1)}mm</b>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 4px; grid-column: span 2;">
+                            <span>🌬️</span><span>${Math.round(vento)} km/h</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
         }
-    } catch (error) { mostrarMensagem("Erro ao carregar previsão.", "error"); }
+    } catch (error) { 
+        console.error("Erro na previsão:", error);
+    }
 }
 
 
@@ -491,7 +598,7 @@ window.removerPonto = async function(id) {
         try {
             await deleteDoc(doc(db, "alagamentos", id));
             mostrarMensagem("Mapa atualizado!", "success");
-            setTimeout(() => location.reload(), 1000);
+            // REMOVI O RELOAD DAQUI. O onSnapshot cuida do resto!
         } catch (e) { mostrarMensagem("Erro ao remover.", "error"); }
     });
 }
@@ -502,27 +609,93 @@ window.confirmarPonto = async function(id) {
         mostrarMensagem("Ponto confirmado!", "success");
     } catch (e) { mostrarMensagem("Erro ao confirmar.", "error"); }
 }
-
-// PWA Logic
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(err => console.log('Erro PWA:', err));
-    });
-}
-
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-});
-
-window.addEventListener('click', () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt = null;
-    }
-}, { once: true });
-
 atualizarMonitoramento();
 
 
+// A BARRA DE STATUS ABAIXO DO MENU
+onAuthStateChanged(auth, (user) => {
+    const userDisplay = document.getElementById('user-email');
+    
+    if (user) {
+        // Lógica para detectar se é anônimo ou email
+        const nomeParaExibir = user.isAnonymous ? "Visitante" : (user.email ? user.email : "Usuário");
+        
+        if (userDisplay) {
+            userDisplay.innerText = `Logado como: ${nomeParaExibir}`;
+        }
+        console.log("Login detectado:", nomeParaExibir);
+    } else {
+        // Se não houver usuário logado, vai para o login
+        window.location.replace("login.html");
+    }
+});
+
+
+
+
+// PWA Logic atualizado
+let deferredPrompt;
+const installContainer = document.getElementById('install-container');
+const btnInstall = document.getElementById('btn-install-pwa');
+
+// 1. Escuta se o app pode ser instalado
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // MOSTRA O BOTÃO na tela mudando o estilo para flex ou block
+    if (installContainer) {
+        installContainer.style.display = 'block';
+    }
+    
+    console.log('PWA: Pronto para instalação');
+});
+
+// 2. Ação ao clicar no botão de instalação
+if (btnInstall) {
+    btnInstall.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+
+        // Mostra o prompt oficial do navegador
+        deferredPrompt.prompt();
+        
+        const { outcome } = await deferredPrompt.userChoice;
+        logEvent(analytics, 'pwa_install_choice', { outcome: outcome });
+
+        if (outcome === 'accepted') {
+            console.log('Usuário aceitou a instalação');
+            installContainer.style.display = 'none';
+        }
+        deferredPrompt = null;
+    });
+}
+
+// 3. Registra sucesso
+window.addEventListener('appinstalled', (evt) => {
+    logEvent(analytics, 'pwa_install_success');
+    if (installContainer) installContainer.style.display = 'none';
+    mostrarMensagem("App instalado com sucesso!", "success");
+});
+
+// 4. Registro do Service Worker (Mantido)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker: Ativo'))
+            .catch(err => console.log('Erro PWA:', err));
+    });
+}
+
+
+// Exponha a função globalmente para que o 'onclick' no HTML funcione
+window.fecharAviso = function() {
+    const modal = document.getElementById('modal-aviso');
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // Registra o evento no Analytics se a função existir
+        if (typeof logEvent === "function") {
+            logEvent(analytics, 'aviso_responsabilidade_aceito');
+        }
+    }
+};

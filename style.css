@@ -3,7 +3,7 @@
    ========================================================================== */
 :root {
     --primary: #003366;
-    --danger: #e63946;
+    --danger: #fa0015;
     --success: #2a9d8f;
     --warning: #f39c12;
     --text: #1b263b;
@@ -32,13 +32,14 @@ body, html {
 #main-header {
     background: var(--primary);
     color: white;
-    height: 60px;
+    height: 50px; /* Reduzido para ganhar espaço no mapa */
     display: flex;
     align-items: center;
     padding: 0 1rem;
     z-index: 1100;
-    position: relative;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    position: sticky; /* Melhor que relative: ele fica preso no topo se a página rolar */
+    top: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .header-content {
@@ -50,43 +51,46 @@ body, html {
 
 .brand {
     display: flex;
-    align-items: center;
+    flex-direction: column; /* Organiza título sobre a cidade */
+    min-width: fit-content;
 }
 
-.brand h1 { font-size: 1rem; margin: 0; font-weight: 700; }
-.brand span { font-size: 0.7rem; opacity: 0.8; }
+.brand h1 { 
+    font-size: 0.9rem; 
+    margin: 0; 
+    font-weight: 700; 
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.brand span { 
+    font-size: 0.65rem; 
+    opacity: 0.85; 
+}
 
 .user-menu {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    flex-grow: 1;
+    gap: 15px; /* Espaçamento equilibrado */
 }
 
 .user-group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-.btn-logout {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 6px 15px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    cursor: pointer;
-    white-space: nowrap;
+.user-info {
+    font-size: 0.8rem;
+    opacity: 0.9;
+    /* No mobile, podemos esconder o texto "Logado como" e deixar só o nome */
 }
 
 .btn-help {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
     border: none;
     color: white;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     cursor: pointer;
     border-radius: 50%;
     width: 32px;
@@ -94,7 +98,37 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-help:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.btn-logout {
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
     transition: background 0.2s;
+}
+
+.btn-logout:hover {
+    background: #c0392b;
+}
+
+/* AJUSTE PARA CELULAR (IMPORTANTE) */
+@media (max-width: 600px) {
+    .user-info {
+        display: none; /* Esconde o texto longo no celular para não amontoar */
+    }
+    
+    .brand h1 { font-size: 0.8rem; }
 }
 
 /* ==========================================================================
@@ -113,7 +147,8 @@ body, html {
 
 .map-button {
     position: fixed; 
-    bottom: 500px; 
+    /* Ajuste aqui: 20px ou 80px dependendo se há outros botões abaixo */
+    margin-top: 70px;
     right: 20px;
     width: 52px; 
     height: 52px;
@@ -206,21 +241,33 @@ body, html {
 .value { font-size: 0.95rem; font-weight: 800; display: block; }
 .sub { font-size: 0.7rem; color: #3b82f6; font-weight: 600; }
 
+
 /* ==========================================================================
    5. MODAIS E COMPONENTES FLUTUANTES
    ========================================================================== */
 .modal-clima {
-    display: none;
+    display: none; /* Controlado via JS */
     position: fixed;
     z-index: 2000;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    left: 0; 
+    top: 0;
+    width: 100%; 
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-content {
     background-color: white;
-    margin: 15% auto;
     padding: 20px;
     width: 90%;
     max-width: 450px;
@@ -228,66 +275,111 @@ body, html {
     max-height: 85vh;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    position: relative;
+    margin-left: 20px;
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--primary);
 }
 
 .modal-header button {
-    background: none; border: none;
-    font-size: 20px; color: #999;
+    background: #f1f2f6;
+    border: none;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-body-scroll {
     overflow-y: auto;
-    padding: 10px 15px;
+    padding: 5px;
     scrollbar-width: thin;
 }
 
-.modal-body-scroll::-webkit-scrollbar { width: 5px; }
-.modal-body-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+/* ==========================================================================
+   CORREÇÃO DA GRADE DE PREVISÃO (MOBILE VS DESKTOP)
+   ========================================================================== */
 
-/* Grid de Previsão */
+/* PADRÃO MOBILE: Lista Vertical (Para não esmagar as informações) */
 .dias-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 10px;
-    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 5px;
 }
 
 .dia-card {
     background: #f8fafc;
-    padding: 10px 5px;
+    padding: 15px;
     border-radius: 15px;
-    text-align: center;
     border: 1px solid #eee;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Alinha informações lado a lado no mobile */
     align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
-/* Ajuda Itens */
+/* Ajuste dos textos dentro do card para Mobile */
+.dia-card b { font-size: 0.95rem; min-width: 70px; }
+.dia-card small { color: var(--text-muted); }
+
+/* Ajuste para Desktop: Mantém as 3 colunas horizontais */
+@media (min-width: 769px) {
+    .dias-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+    
+    .dia-card {
+        flex-direction: column; /* Volta a ser empilhado no desktop */
+        text-align: center;
+        padding: 12px 5px;
+    }
+}
+
+/* ==========================================================================
+   AJUDA E BOTÕES
+   ========================================================================== */
 .ajuda-item {
     display: flex;
     align-items: flex-start;
     gap: 12px;
     margin-bottom: 15px;
+    padding: 10px;
+    background: #fdfdfd;
+    border-radius: 10px;
 }
 
 .ajuda-item i {
     font-size: 1.2rem;
-    width: 25px;
-    text-align: center;
+    color: var(--primary);
     margin-top: 3px;
 }
 
 .ajuda-item p {
     margin: 0;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #444;
     line-height: 1.4;
 }
@@ -295,13 +387,14 @@ body, html {
 /* Botões Flutuantes */
 .floating-btn {
     position: fixed;
-    bottom: 120px; right: 20px;
+    bottom: 120px; 
+    right: 20px;
     background: white;
     border: none;
-    padding: 10px 15px;
+    padding: 12px 20px;
     border-radius: 30px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    z-index: 2000;
+    z-index: 1050;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -313,30 +406,28 @@ body, html {
     position: absolute;
     right: 20px;
     top: 10px;
-    width: 50px; height: 50px;
+    width: 54px; 
+    height: 54px;
     border-radius: 50%;
-    background: #e74c3c;
+    background: var(--danger);
     color: white;
     border: none;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 1000;
     cursor: pointer;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     transition: transform 0.2s;
 }
 
 .floating-btn-add:active { transform: scale(0.9); }
-.floating-btn-add i { font-size: 1.2rem; }
-.floating-btn-add span { font-size: 1.5rem; font-weight: bold; }
+.floating-btn-add i { font-size: 1.4rem; }
 
 .modo-marcar-ativo {
-    background: #2c3e50 !important;
+    background: #00ff0d !important;
     animation: pulse-red 1.5s infinite;
 }
-
 /* ==========================================================================
    6. SISTEMA DE TOASTS
    ========================================================================== */
@@ -409,6 +500,204 @@ body, html {
     from { box-shadow: 0 0 5px #e74c3c; }
     to { box-shadow: 0 0 20px #e74c3c; }
 }
+
+
+/* ==========================================================================
+   APENAS DESKTOP: PREVISÃO FIXA (TOTALMENTE À DIREITA)
+   ========================================================================== */
+@media (min-width: 769px) {
+    /* Esconde o botão redondo de abrir */
+    #btn-previsao-3dias {
+        display: none !important;
+    }
+
+    /* 1. Ajuste do Container Pai: Movemos o "bloco" todo para a direita */
+    #modal-previsao.modal-clima {
+        display: flex !important; /* Usar flex para alinhar o conteúdo */
+        position: fixed;
+        top: auto;
+        bottom: 30px; 
+        right: 20px;
+        left: auto; /* Remove alinhamento à esquerda */
+        width: auto; /* Deixa ele assumir a largura do conteúdo */
+        height: auto;
+        background: transparent !important; /* Remove qualquer fundo que tenha sobrado */
+        pointer-events: none;
+        z-index: 1000;
+        backdrop-filter: none !important; /* Remove o blur do fundo da tela toda */
+    }
+
+    /* 2. Ajuste do Conteúdo (O Card visível) */
+    #modal-previsao .modal-content {
+        margin: 0; /* Remove margens que podem estar empurrando o card */
+        width: 750px; /* Sua largura horizontal desejada */
+        pointer-events: all;
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: var(--shadow);
+        border-radius: 15px;
+        padding: 15px;
+    }
+
+    /* 3. Ajuste da Grade para Horizontal */
+    .dias-grid {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 12px;
+        grid-template-columns: repeat(3, 1fr); /* Garante 3 colunas iguais */
+        margin-left: -10px;
+    }
+
+    .dia-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    /* Esconde elementos desnecessários no desktop fixo */
+    #modal-previsao .modal-header button { display: none; }
+}
+
+/* Cores de Status - Mantendo seu layout */
+.safe { border-top: 4px solid #2ecc71 !important; }    /* Verde */
+.warning { border-top: 4px solid #f1c40f !important; } /* Amarelo */
+.danger { border-top: 4px solid #e74c3c !important; }  /* Vermelho */
+
+/* Estilo do texto do alerta mini */
+.alerta-mini.safe { color: #2ecc71; }
+.alerta-mini.warning { color: #f39c12; }
+.alerta-mini.danger { color: #e74c3c; font-weight: bold; }
+
+/* Garante que o card principal aceite elementos posicionados */
+.monitor-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Importante para manter o design limpo */
+}
+
+/* Alinhamento do cabeçalho para acomodar o switch na direita */
+.header-resumo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    cursor: pointer;
+    padding-bottom: 10px;
+}
+
+.mobile-selector-container {
+    display: flex;
+    margin-top: 5px;
+}
+
+/* Estilo do Botão (Switch) */
+.mobile-switch {
+    display: flex;
+    background: rgba(255, 255, 255, 0.2);
+    background-color: #eee; /* Cor de fundo do switch */
+    border-radius: 20px;
+    padding: 2px;
+    width: 140px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.btn-switch {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 0;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #000000;
+    border-radius: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-switch.ativo {
+    background: #3182ce;
+    color: #00a800;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-weight: 800;
+}
+
+/* Ocultar em Desktop */
+@media (min-width: 769px) {
+    .mobile-selector-container {
+        display: none;
+    }
+}
+
+
+.sun-cycle {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    background: rgba(0, 0, 0, 0.03); /* Fundo bem sutil */
+    border-radius: 10px;
+    font-size: 0.7rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+.sun-cycle span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Efeito de destaque para o botão de localização */
+.atencao-shake {
+    animation: shakePulse 0.5s ease-in-out infinite;
+    box-shadow: 0 0 25px rgba(231, 76, 60, 0.9) !important;
+    z-index: 3000 !important;
+}
+
+@keyframes shakePulse {
+    0% { transform: scale(1.0); }
+    50% { transform: scale(1.15) rotate(5deg); }
+    100% { transform: scale(1.0) rotate(0deg); }
+}
+
+
+/* Container dos contatos */
+.emergency-contacts {
+    display: flex;
+    gap: 8px;
+    margin-right: 5px;
+}
+
+/* Estilo base dos botões circulares */
+.btn-emergency {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    font-size: 1.1rem;
+    transition: transform 0.2s;
+}
+
+.btn-emergency.tel {
+    background-color: #e74c3c; /* Vermelho para emergência */
+}
+
+.btn-emergency.whatsapp {
+    background-color: #25d366; /* Verde oficial WhatsApp */
+}
+
+.btn-emergency:active {
+    transform: scale(0.9);
+}
+
 
 /* ==========================================================================
    8. RESPONSIVIDADE (MOBILE & TABLET)
@@ -553,7 +842,8 @@ body, html {
 
     /* Ajuste de posição quando a gaveta expande - Baseado no seu original */
     .monitor-card.expanded ~ .map-button {
-        bottom: 520px; 
+        bottom: 520px;
+        align-items: normal; 
     }
 }
 
@@ -573,145 +863,255 @@ body, html {
 }
 
 
-
-/* ==========================================================================
-   APENAS DESKTOP: PREVISÃO FIXA
-   ========================================================================== */
-@media (min-width: 769px) {
-    /* Esconde o botão redondo de abrir, pois o card já estará aberto */
-    #btn-previsao-3dias {
-        display: none !important;
-    }
-
-    /* Transforma o modal em um card fixo no canto inferior direito */
-    #modal-previsao.modal-clima {
-        display: block !important; /* Sempre visível no desktop */
-        position: fixed;
-        top: auto;
-        left: auto;
-        bottom: 20px;
-        right: 20px;
-        width: 320px;
-        height: auto;
-        background: transparent; /* Remove o fundo escuro do modal */
-        pointer-events: none; /* Permite clicar no mapa através do fundo */
-        z-index: 1000;
-    }
-
-    #modal-previsao .modal-content {
-        margin: 0;
-        width: 100%;
-        max-width: none;
-        pointer-events: all; /* Reativa cliques dentro do card */
-        background: var(--glass);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: var(--shadow);
-    }
-
-    /* Esconde o botão de fechar (X) no desktop */
-    #modal-previsao .modal-header button {
-        display: none;
-    }
-
-    #modal-previsao .modal-header h3 {
-        font-size: 0.9rem;
-        color: var(--primary);
-    }
-
-    /* Ajusta a grade para ficar melhor em um card fixo */
-    .dias-grid {
-        grid-template-columns: 1fr; /* Lista vertical no desktop */
-        gap: 8px;
-    }
-
-    .dia-card {
-        flex-direction: row;
+/* AJUSTES PARA CELULAR (Telas menores que 768px) */
+@media (max-width: 768px) {
+    .header-content {
+        padding: 5px 10px;
         justify-content: space-between;
-        padding: 8px 12px;
-        text-align: left;
+    }
+
+    .brand h1 {
+        font-size: 1.2rem; /* Diminui o título para sobrar espaço */
+    }
+
+    .user-info {
+        display: none; /* Esconde o email no mobile para não amontoar */
+    }
+
+    .user-status-bar {
+        background-color: #f1f2f6; /* Cinza bem claro */
+        padding: 6px 15px;
+        display: flex;
         align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid #ddd;
+        font-size: 0.8rem;
+        color: #57606f;
+        font-weight: 500;
+    }
+
+    .user-status-bar i {
+        color: #263bf7; /* Azul combinando com o seu header */
+    }
+
+    /* No desktop, se quiser que ela suma e o nome volte para o header original */
+    @media (min-width: 769px) {
+        /* Opcional: oculte a barra se o nome já couber lá em cima */
+        /* .user-status-bar { display: none; } */
+    }
+
+    @media (max-width: 768px) {
+        /* 54px do header + aprox. 30px da barra nova = 84px */
+        #app-container { 
+            height: calc(100vh - 84px); 
+        }
+    }
+
+    .user-menu {
+        gap: 5px;
+    }
+
+    .btn-emergency {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .btn-logout {
+        padding: 5px 8px;
+        font-size: 0.8rem;
     }
 }
 
 
-
-
-
-
-
-
-/* Cores de Status - Mantendo seu layout */
-.safe { border-top: 4px solid #2ecc71 !important; }    /* Verde */
-.warning { border-top: 4px solid #f1c40f !important; } /* Amarelo */
-.danger { border-top: 4px solid #e74c3c !important; }  /* Vermelho */
-
-/* Estilo do texto do alerta mini */
-.alerta-mini.safe { color: #2ecc71; }
-.alerta-mini.warning { color: #f39c12; }
-.alerta-mini.danger { color: #e74c3c; font-weight: bold; }
-
-
-
-
-
-
-
-
-/* Garante que o card principal aceite elementos posicionados */
-.monitor-card {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Importante para manter o design limpo */
+/* BOTÂO INSTALAR */
+#install-container {
+    display: none; /* Começa escondido */
+    position: absolute;
+    bottom: 80px; /* Acima do botão de centralizar, se necessário */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000; /* Garante que fica em cima do mapa */
+    width: auto;
 }
 
-/* Alinhamento do cabeçalho para acomodar o switch na direita */
-.header-resumo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    cursor: pointer;
-    padding-bottom: 10px;
-}
-
-.mobile-selector-container {
-    display: flex;
-    margin-top: 5px;
-}
-
-/* Estilo do Botão (Switch) */
-.mobile-switch {
-    display: flex;
-    background: rgba(255, 255, 255, 0.2);
-    background-color: #eee; /* Cor de fundo do switch */
-    border-radius: 20px;
-    padding: 2px;
-    width: 140px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.btn-switch {
-    flex: 1;
+/* Botão de Instalação Adaptável */
+#btn-install-pwa {
+    background: #3182ce;
+    color: white;
     border: none;
-    background: transparent;
-    padding: 6px 0;
-    font-size: 0.75rem;
-    font-weight: bold;
-    color: #666;
-    border-radius: 18px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
 }
 
-.btn-switch.ativo {
-    background: #3182ce;
-    color: #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+/* ESTILO PARA MOBILE (Dentro do Header) */
+@media (max-width: 768px) {
+    #btn-install-pwa {
+        width: 32px;      /* Mesma largura dos botões de Tel/Whats */
+        height: 32px;
+        border-radius: 50%;
+        padding: 0;
+        box-shadow: none; /* Remove sombra pesada no header */
+    }
+
+    /* Esconde o texto "Baixar" ou "Instalar", deixa só o ícone */
+    #btn-install-pwa span, 
+    #btn-install-pwa {
+        font-size: 0; 
+    }
+    
+    #btn-install-pwa i {
+        font-size: 1rem; /* Tamanho do ícone */
+        margin: 0;
+    }
+    
+    #install-container {
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
+
+}.user-status-bar {
+    background-color: #f8f9fa;
+    padding: 5px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.75rem;
+    color: #444;
 }
 
-/* Ocultar em Desktop */
-@media (min-width: 769px) {
-    .mobile-selector-container {
-        display: none;
+.user-status-bar i {
+    color: #263bf7;
+    font-size: 0.8rem;
+}
+
+/* Reajuste da altura do container do mapa no mobile */
+@media (max-width: 768px) {
+    #app-container { 
+        /* 54px (header) + 30px (barra de status) = 84px */
+        height: calc(100vh - 84px) !important; 
     }
+}
+
+
+/* Overlay de fundo */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999; /* Fica acima de tudo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Caixa do aviso */
+.modal-aviso-content {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+    overflow: hidden;
+    animation: zoomIn 0.3s ease;
+}
+
+.modal-header-alerta {
+    background: #f1c40f; /* Amarelo alerta */
+    padding: 20px;
+    text-align: center;
+    color: #000;
+}
+
+.modal-header-alerta i { font-size: 2.5rem; margin-bottom: 10px; }
+.modal-header-alerta h2 { margin: 0; font-size: 1.4rem; font-weight: 800; }
+
+.modal-body-alerta { padding: 20px; }
+
+.destaque { color: #2c3e50; line-height: 1.5; font-size: 0.95rem; }
+
+.card-responsabilidade {
+    background: #fff5f5;
+    border: 2px solid #feb2b2;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+
+.card-responsabilidade h3 { color: #c53030; font-size: 1rem; margin-top: 0; }
+
+.alerta-vital {
+    color: #c53030;
+    background: #fff;
+    padding: 10px;
+    border-left: 4px solid #c53030;
+    font-size: 0.9rem;
+}
+
+.btn-entendido {
+    width: 100%;
+    padding: 18px;
+    background: #263bf7;
+    color: white;
+    border: none;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+
+/* Ajuste na barra de arraste para mobile */
+@media (max-width: 768px) {
+    .drag-handle {
+        display: flex !important;   /* Garante que o container apareça */
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 25px;               /* Aumentamos um pouco para caber o ícone */
+        background: transparent;    /* Removemos a cor sólida para ver o ícone */
+        margin: 0 auto 5px;
+        cursor: pointer;
+    }
+
+    .indicador-seta {
+        color: #263bf7;            /* Cor azul combinando com seu tema */
+        font-size: 1.2rem;
+        animation: subirPiscar 1.2s infinite ease-in-out;
+    }
+}
+
+/* ANIMAÇÃO DA SETA */
+@keyframes subirPiscar {
+    0% {
+        opacity: 0.2;
+        transform: translateY(0);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(-8px); /* Sobe indicando o movimento */
+    }
+    100% {
+        opacity: 0.2;
+        transform: translateY(0);
+    }
+}
+
+/* Esconde a seta quando o card já estiver aberto */
+.monitor-card.expanded .indicador-seta {
+    display: none;
 }

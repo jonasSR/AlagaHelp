@@ -20,29 +20,69 @@
 </head>
 <body>
 
+    <div id="modal-aviso" class="modal-overlay">
+        <div class="modal-aviso-content">
+            <div class="modal-header-alerta">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <h2>AVISO IMPORTANTE</h2>
+            </div>
+            
+            <div class="modal-body-alerta">
+                <p class="destaque">
+                    O <strong>Alaga-Help</strong> utiliza dados do <strong>Open-Meteo</strong>, que processa modelos matemáticos globais de supercomputadores (como o ECMWF e GFS), os mesmos usados por grandes telejornais.
+                </p>
+                
+                <div class="card-responsabilidade">
+                    <h3>Aviso de Responsabilidade</h3>
+                    <p>Dados de caráter meramente informativo.</p>
+                    <p class="alerta-vital">
+                        <strong>Em caso de sirenes ou ordens da Defesa Civil, ignore o app e siga as instruções das autoridades imediatamente.</strong>
+                    </p>
+                </div>
+            </div>
+
+            <button class="btn-entendido" onclick="fecharAviso()">
+                <i class="fa-solid fa-check"></i> ESTOU CIENTE
+            </button>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <header id="main-header">
-        <div class="header-content">
-            <div class="brand">
-                <div class="brand-text">
-                    <h1>Alaga-Help</h1>
-                    <span>São Luiz do Paraitinga</span>
-                </div>
+    <div class="header-content">
+        <div class="brand">
+            <div class="brand-text">
+                <h1>Alaga-Help</h1>
+                <span>São Luiz do Paraitinga</span>
+            </div>
+        </div>
+        <button id="btn-install-pwa">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+           Baixar
+        </button>
+        <nav class="user-menu">
+            <div class="emergency-contacts">
+                <a href="tel:199" class="btn-emergency tel" title="Ligar Defesa Civil">
+                    <i class="fa-solid fa-phone"></i>
+                </a>
+                <a href="https://wa.me/551236711214" target="_blank" class="btn-emergency whatsapp" title="WhatsApp Defesa Civil">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+                <button id="btn-ajuda" class="btn-help" onclick="abrirModalAjuda()" title="Como usar">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
             </div>
             
-            <nav class="user-menu">
-                <div class="user-group">
-                    <span id="user-email" class="user-info"></span>
-                    <button id="btn-ajuda" class="btn-help" onclick="abrirModalAjuda()" title="Como usar">
-                        <i class="fa-solid fa-circle-question"></i>
-                    </button>
-                </div>
-                
-                <button id="logout" class="btn-logout">Sair</button>
-            </nav>
-        </div>
-    </header>
+            <button id="logout" class="btn-logout">Sair</button>
+        </nav>
+    </div>
+</header>
+    <div id="user-status-bar" class="user-status-bar">
+        <i class="fa-solid fa-user-check"></i>
+        <span id="user-email">Carregando...</span>
+    </div>    
     
     <main id="app-container">
         <div id="map"></div>
@@ -52,6 +92,7 @@
                 <path fill="currentColor" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
             </svg>
         </button>
+ 
 
 
         <button id="btn-add-alagamento" class="floating-btn-add">
